@@ -135,8 +135,8 @@ const projects = [
     title: "BLDC Motor + Controller",
     bgZone: { top:"40%", left:"30%", w:"200px", h:"200px" },
     files: [
-        "bldc_controller.JPG",
-        "bldc_magnets.JPG"
+        "bldc_controller.jpg",
+        "bldc_magnets.jpg"
     ]
 },
 {
@@ -144,8 +144,8 @@ const projects = [
     title: "Electric Violin",
     bgZone: { top:"50%", left:"55%", w:"200px", h:"200px" },
     files: [
-        "violin_top.JPG",
-        "violin_side.JPG"
+        "violin_top.jpg",
+        "violin_side.jpg"
     ]
 },
 {
@@ -159,7 +159,7 @@ const projects = [
 ];
 
 // background image
-const backgroundImage = "files/lab.JPG";
+const backgroundImage = "files/lab.jpg";
 
 /* =========================
    ⚙️ DO NOT TOUCH BELOW
@@ -198,7 +198,7 @@ projects.forEach(p => {
     let html = `<h2>${p.title}</h2><div class="gallery">`;
 
     p.files.forEach(file => {
-        if (file.endsWith(".mp4")) {
+        if (file.toLowerCase().endsWith(".mp4")) {
             html += `<video src="files/${file}" controls></video>`;
         } else {
             html += `<img src="files/${file}">`;
