@@ -10,21 +10,20 @@ body {
     font-family: monospace;
     background: black;
     color: white;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
-/* landing */
-#landing {
+/* background lab */
+#lab {
+    position: fixed;
+    width: 100vw;
     height: 100vh;
-    background-size: cover;
-    background-position: center;
-    position: relative;
+    background: url("files/lab.jpg") center/cover no-repeat;
 }
 
-/* dark overlay */
-#landing::after {
-    content: "";
-    position: absolute;
+/* overlay */
+#overlay {
+    position: fixed;
     width: 100%;
     height: 100%;
     background: rgba(0,0,0,0.4);
@@ -32,7 +31,7 @@ body {
 
 /* header */
 #header {
-    position: absolute;
+    position: fixed;
     top: 20px;
     right: 40px;
     display: flex;
@@ -53,7 +52,7 @@ body {
 
 /* title */
 #title {
-    position: absolute;
+    position: fixed;
     bottom: 40px;
     left: 40px;
     z-index: 2;
@@ -72,31 +71,43 @@ body {
 }
 
 .zone:hover {
-    outline: 2px solid white;
+    outline: 2px solid rgba(255,255,255,0.6);
 }
 
-/* sections */
-.section {
-    padding: 80px 40px;
-}
-
-.gallery {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.gallery img, .gallery video {
+/* modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
+
+    background: rgba(0,0,0,0.95);
+    display: none;
+
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+}
+
+/* modal content */
+.modal-content {
+    margin-top: 80px;
+    width: 90%;
     max-width: 900px;
 }
 
-/* back button */
-.back {
-    margin-top: 40px;
-    border: 1px solid white;
-    padding: 10px 20px;
-    display: inline-block;
+.modal img, .modal video {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+/* close button */
+.close {
+    position: fixed;
+    top: 20px;
+    right: 40px;
+    font-size: 28px;
     cursor: pointer;
 }
 </style>
@@ -104,116 +115,77 @@ body {
 
 <body>
 
-<div id="landing">
-    <div id="header">
-        <div class="email" onclick="location.href='mailto:j.llamas@berkeley.edu'">
-            Email
-        </div>
+<div id="lab"></div>
+<div id="overlay"></div>
 
-        <div class="resume" onclick="window.open('files/Resume.pdf')">
-            Resume
-        </div>
+<!-- header -->
+<div id="header">
+    <div class="email" onclick="location.href='mailto:j.llamas@berkeley.edu'">
+        Email
     </div>
 
-    <div id="title">
-        <h1>Jose Llamas</h1>
-        <p>Sophomore @ UC Berkeley EECS</p>
-        <p>click the lab to explore</p>
+    <div class="resume" onclick="window.open('files/Resume.pdf')">
+        Resume
     </div>
-
-    <div id="zones"></div>
 </div>
 
-<div id="projects"></div>
+<!-- title -->
+<div id="title">
+    <h1>Jose Llamas</h1>
+    <p>Sophomore @ UC Berkeley EECS</p>
+    <p>click the lab to explore</p>
+</div>
+
+<!-- zones -->
+
+<div class="zone" style="top:40%; left:30%; width:200px; height:200px;"
+     onclick="openModal('bldc')"></div>
+
+<div class="zone" style="top:50%; left:55%; width:200px; height:200px;"
+     onclick="openModal('violin')"></div>
+
+<div class="zone" style="top:30%; left:75%; width:200px; height:200px;"
+     onclick="openModal('scope')"></div>
+
+
+<!-- BLDC -->
+<div class="modal" id="bldc">
+    <div class="close" onclick="closeModal()">✕</div>
+    <div class="modal-content">
+        <h2>BLDC Motor + Controller</h2>
+        <img src="files/bldc_controller.jpg">
+        <img src="files/bldc_magnets.jpg">
+    </div>
+</div>
+
+<!-- VIOLIN -->
+<div class="modal" id="violin">
+    <div class="close" onclick="closeModal()">✕</div>
+    <div class="modal-content">
+        <h2>Electric Violin</h2>
+        <img src="files/violin_top.jpg">
+        <img src="files/violin_side.jpg">
+    </div>
+</div>
+
+<!-- OSCILLOSCOPE -->
+<div class="modal" id="scope">
+    <div class="close" onclick="closeModal()">✕</div>
+    <div class="modal-content">
+        <h2>Oscilloscope</h2>
+        <video src="files/oscilloscope.mp4" controls autoplay></video>
+    </div>
+</div>
+
 
 <script>
-
-/* =========================
-   🔧 EDIT THIS ONLY
-========================= */
-
-const projects = [
-{
-    id: "bldc",
-    title: "BLDC Motor + Controller",
-    bgZone: { top:"40%", left:"30%", w:"200px", h:"200px" },
-    files: [
-        "bldc_controller.jpg",
-        "bldc_magnets.jpg"
-    ]
-},
-{
-    id: "violin",
-    title: "Electric Violin",
-    bgZone: { top:"50%", left:"55%", w:"200px", h:"200px" },
-    files: [
-        "violin_top.jpg",
-        "violin_side.jpg"
-    ]
-},
-{
-    id: "scope",
-    title: "Oscilloscope",
-    bgZone: { top:"30%", left:"75%", w:"200px", h:"200px" },
-    files: [
-        "oscilloscope.mp4"
-    ]
+function openModal(id) {
+    document.getElementById(id).style.display = "flex";
 }
-];
 
-// background
-const backgroundImage = "files/lab.jpg";
-
-/* =========================
-   ⚙️ AUTO BUILD
-========================= */
-
-document.getElementById("landing").style.backgroundImage = `url(${backgroundImage})`;
-
-const zonesContainer = document.getElementById("zones");
-
-projects.forEach(p => {
-    const z = document.createElement("div");
-    z.className = "zone";
-    z.style.top = p.bgZone.top;
-    z.style.left = p.bgZone.left;
-    z.style.width = p.bgZone.w;
-    z.style.height = p.bgZone.h;
-
-    z.onclick = () => {
-        document.getElementById(p.id).scrollIntoView({ behavior: "smooth" });
-    };
-
-    zonesContainer.appendChild(z);
-});
-
-const projectContainer = document.getElementById("projects");
-
-projects.forEach(p => {
-
-    const section = document.createElement("div");
-    section.className = "section";
-    section.id = p.id;
-
-    let html = `<h2>${p.title}</h2><div class="gallery">`;
-
-    p.files.forEach(file => {
-        if (file.toLowerCase().endsWith(".mp4")) {
-            html += `<video src="files/${file}" controls></video>`;
-        } else {
-            html += `<img src="files/${file}">`;
-        }
-    });
-
-    html += `</div>
-    <div class="back" onclick="window.scrollTo({top:0, behavior:'smooth'})">
-        Back to Lab
-    </div>`;
-
-    section.innerHTML = html;
-    projectContainer.appendChild(section);
-});
-
+function closeModal() {
+    document.querySelectorAll(".modal").forEach(m => m.style.display = "none");
+}
 </script>
 
 </body>
