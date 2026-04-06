@@ -10,42 +10,90 @@ body {
     font-family: monospace;
     background: black;
     color: white;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
-/* HOME SCREEN */
+/* FULLSCREEN GRID HOME */
 
 #home {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
     height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 40px;
 }
 
-.name {
-    font-size: 48px;
+/* EACH PANEL */
+
+.panel {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.panel img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.5);
+    transition: 0.4s;
+}
+
+.panel:hover img {
+    filter: brightness(0.8);
+    transform: scale(1.05);
+}
+
+/* TEXT OVERLAY */
+
+.overlay {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+}
+
+.title {
+    font-size: 32px;
 }
 
 .subtitle {
-    font-size: 20px;
+    font-size: 16px;
     opacity: 0.7;
 }
+
+/* NAME FIXED (NO SCROLL EVER) */
+
+.identity {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    z-index: 10;
+}
+
+.identity .name {
+    font-size: clamp(24px, 4vw, 48px);
+}
+
+.identity .sub {
+    font-size: clamp(14px, 2vw, 20px);
+    opacity: 0.7;
+}
+
+/* TOP RIGHT */
 
 .topbar {
     position: fixed;
     top: 20px;
     right: 30px;
     text-align: right;
+    z-index: 10;
 }
 
 button {
     background: transparent;
     border: 1px solid white;
     color: white;
-    padding: 10px 16px;
+    padding: 8px 14px;
+    margin-top: 8px;
     cursor: pointer;
-    margin-top: 10px;
 }
 
 button:hover {
@@ -53,48 +101,15 @@ button:hover {
     color: black;
 }
 
-/* LAB PAGE */
+/* OVERLAY PAGE */
 
-#labPage {
+.page {
     display: none;
     position: fixed;
     inset: 0;
     background: black;
-}
-
-#labBackground {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* clickable zones */
-
-.zone {
-    position: absolute;
-    border: 2px solid rgba(255,255,255,0.3);
-    cursor: pointer;
-}
-
-.zone:hover {
-    background: rgba(255,255,255,0.1);
-}
-
-/* modal */
-
-#modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.95);
-    padding: 40px;
     overflow-y: auto;
-}
-
-#modal img {
-    width: 300px;
-    margin: 10px;
+    padding: 40px;
 }
 
 .close {
@@ -105,23 +120,28 @@ button:hover {
     cursor: pointer;
 }
 
-/* projects section */
+/* PROJECT CARDS */
 
 .project {
     display: flex;
-    align-items: center;
     margin-bottom: 40px;
+    align-items: center;
 }
 
 .project img {
-    width: 250px;
+    width: 260px;
     margin-right: 20px;
 }
 
-/* scroll gallery */
+video {
+    max-width: 500px;
+}
+
+/* GRID GALLERY */
 
 .gallery {
-    margin-top: 40px;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .gallery img {
@@ -138,88 +158,128 @@ button:hover {
 <div class="topbar">
     ~/pepc84<br>
     <a href="mailto:j.llamas@berkeley.edu"><button>Email</button></a><br>
-    <a href="files/Resume.pdf" target="_blank"><button>Resume</button></a><br>
-    <button onclick="openLab()">Check the Lab</button>
+    <a href="files/Resume.pdf" target="_blank"><button>Resume</button></a>
 </div>
 
-<!-- HOME -->
-<div id="home">
+<!-- NAME (ALWAYS VISIBLE, NO SCROLL) -->
+<div class="identity">
     <div class="name">Jose Llamas</div>
-    <div class="subtitle">Sophomore @ UC Berkeley EECS</div>
+    <div class="sub">Sophomore @ UC Berkeley EECS</div>
+</div>
+
+<!-- HOME GRID -->
+<div id="home">
+
+    <!-- EE LAB -->
+    <div class="panel" onclick="openPage('lab')">
+        <img src="files/lab.jpg">
+        <div class="overlay">
+            <div class="title">EE</div>
+            <div class="subtitle">Hardware + Circuits</div>
+        </div>
+    </div>
+
+    <!-- CS IDE -->
+    <div class="panel" onclick="openPage('ide')">
+        <img src="files/bldc_controller.jpg">
+        <div class="overlay">
+            <div class="title">CS</div>
+            <div class="subtitle">Simple++ IDE</div>
+        </div>
+    </div>
+
+    <!-- MATH / GAMES -->
+    <div class="panel" onclick="openPage('games')">
+        <img src="files/violin_top.jpg">
+        <div class="overlay">
+            <div class="title">Math</div>
+            <div class="subtitle">Simulation + Games</div>
+        </div>
+    </div>
+
 </div>
 
 <!-- LAB PAGE -->
-<div id="labPage">
-    <img id="labBackground" src="files/lab.jpg">
+<div id="lab" class="page">
+    <div class="close" onclick="closePage()">X</div>
 
-    <!-- clickable areas -->
-    <div class="zone" style="top:40%; left:30%; width:15%; height:20%;" onclick="openProject('motor')"></div>
-    <div class="zone" style="top:50%; left:55%; width:15%; height:20%;" onclick="openProject('violin')"></div>
-    <div class="zone" style="top:30%; left:75%; width:10%; height:20%;" onclick="openProject('scope')"></div>
-</div>
+    <h2>Electronics Lab</h2>
 
-<!-- MODAL -->
-<div id="modal">
-    <div class="close" onclick="closeModal()">X</div>
-
-    <div id="motor" class="content">
-        <div class="project">
-            <img src="files/bldc_controller.jpg">
-            <div>
-                Brushless motor controller built from scratch  
-                custom ESC design and hall sensor feedback  
-            </div>
+    <div class="project">
+        <img src="files/bldc_controller.jpg">
+        <div>
+            Custom BLDC motor + controller  
+            built from scratch with hall sensors and ESC logic  
         </div>
+    </div>
+
+    <div class="project">
         <img src="files/bldc_magnets.jpg">
-    </div>
-
-    <div id="violin" class="content" style="display:none;">
-        <div class="project">
-            <img src="files/violin_top.jpg">
-            <div>
-                Custom violin experiment and acoustic testing  
-            </div>
+        <div>
+            Rotor magnet configuration and torque optimization  
         </div>
-        <img src="files/violin_side.jpg">
     </div>
 
-    <div id="scope" class="content" style="display:none;">
-        <div class="project">
-            <div>
-                Oscilloscope rendering Bad Apple waveform  
-            </div>
-        </div>
-        <video width="500" controls>
-            <source src="files/oscilloscope.mp4" type="video/mp4">
-        </video>
-    </div>
+    <video controls>
+        <source src="files/oscilloscope.mp4">
+    </video>
 
-    <!-- SCROLLABLE GALLERY -->
     <div class="gallery">
-        <h3>More Photos</h3>
+        <img src="files/lab.jpg">
         <img src="files/bldc_controller.jpg">
         <img src="files/bldc_magnets.jpg">
-        <img src="files/violin_top.jpg">
-        <img src="files/violin_side.jpg">
+    </div>
+</div>
+
+<!-- IDE PAGE -->
+<div id="ide" class="page">
+    <div class="close" onclick="closePage()">X</div>
+
+    <h2>Simple++ IDE</h2>
+
+    <div class="project">
         <img src="files/lab.jpg">
+        <div>
+            Custom lightweight IDE built for C/C++ workflows  
+            designed for speed and minimalism  
+        </div>
     </div>
 
+    <div class="gallery">
+        <img src="files/lab.jpg">
+    </div>
+</div>
+
+<!-- GAMES PAGE -->
+<div id="games" class="page">
+    <div class="close" onclick="closePage()">X</div>
+
+    <h2>Games / Simulation</h2>
+
+    <div class="project">
+        <img src="files/violin_top.jpg">
+        <div>
+            Physics-based experiments and creative builds  
+        </div>
+    </div>
+
+    <div class="project">
+        <img src="files/violin_side.jpg">
+    </div>
+
+    <div class="gallery">
+        <img src="files/violin_top.jpg">
+        <img src="files/violin_side.jpg">
+    </div>
 </div>
 
 <script>
-function openLab() {
-    document.getElementById("labPage").style.display = "block";
+function openPage(id) {
+    document.getElementById(id).style.display = "block";
 }
 
-function openProject(name) {
-    document.getElementById("modal").style.display = "block";
-
-    document.querySelectorAll(".content").forEach(el => el.style.display = "none");
-    document.getElementById(name).style.display = "block";
-}
-
-function closeModal() {
-    document.getElementById("modal").style.display = "none";
+function closePage() {
+    document.querySelectorAll(".page").forEach(p => p.style.display = "none");
 }
 </script>
 
