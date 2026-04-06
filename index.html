@@ -34,8 +34,28 @@ nav .left a {
 }
 
 nav .right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.terminal {
     color: #00ffff;
     font-family: monospace;
+}
+
+.resume-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: #00ffff;
+    color: black;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: 0.3s;
+}
+
+.resume-btn:hover {
+    background: #00cccc;
 }
 
 /* HERO */
@@ -52,27 +72,21 @@ nav .right {
 .hero h1 {
     font-size: 3rem;
     margin: 0;
+    animation: fadeIn 1.5s ease;
+}
+
+.name {
+    margin-top: 10px;
+    font-size: 1.5rem;
+    opacity: 0.9;
+    animation: fadeIn 2s ease;
 }
 
 .subtitle {
-    margin-top: 10px;
-    font-size: 1.2rem;
-    opacity: 0.7;
-}
-
-/* BUTTON */
-.btn {
-    margin-top: 25px;
-    padding: 10px 20px;
-    border-radius: 8px;
-    background: #00ffff;
-    color: black;
-    text-decoration: none;
-    transition: 0.3s;
-}
-
-.btn:hover {
-    background: #00cccc;
+    margin-top: 5px;
+    font-size: 1rem;
+    opacity: 0.6;
+    animation: fadeIn 2.5s ease;
 }
 
 /* PROJECTS */
@@ -112,6 +126,12 @@ nav .right {
     padding: 100px 20px;
     text-align: center;
 }
+
+/* ANIMATION */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px);}
+    to { opacity: 1; transform: translateY(0);}
+}
 </style>
 </head>
 
@@ -123,14 +143,16 @@ nav .right {
         <a href="#projects">Projects</a>
         <a href="#contact">Contact</a>
     </div>
-    <div class="right">~/pepc84</div>
+    <div class="right">
+        <div class="terminal">~/pepc84</div>
+        <a href="files/Resume.pdf" class="resume-btn" target="_blank">Resume</a>
+    </div>
 </nav>
 
 <section class="hero" id="home">
     <h1>Pep</h1>
-    <div class="subtitle">Jose Llamas</div>
-
-    <a href="resume.pdf" class="btn" target="_blank">View Resume</a>
+    <div class="name">Jose Llamas</div>
+    <div class="subtitle">Sophomore @ UC Berkeley EECS</div>
 </section>
 
 <section class="section" id="projects">
@@ -145,7 +167,7 @@ nav .right {
 
 <section class="contact" id="contact">
     <h2>Contact</h2>
-    <p>email: youremail@gmail.com</p>
+    <p>email: j.llamas@berkeley.com</p>
 </section>
 
 <script>
