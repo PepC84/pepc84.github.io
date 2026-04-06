@@ -19,23 +19,23 @@ nav {
     position: fixed;
     width: 100%;
     top: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 30px;
     background: rgba(0,0,0,0.6);
     backdrop-filter: blur(10px);
-    display: flex;
-    justify-content: center;
-    padding: 15px;
     z-index: 100;
 }
 
-nav a {
-    color: white;
-    margin: 0 20px;
+nav .left a {
+    margin-right: 20px;
     text-decoration: none;
-    transition: 0.3s;
+    color: white;
 }
 
-nav a:hover {
+nav .right {
     color: #00ffff;
+    font-family: monospace;
 }
 
 /* HERO */
@@ -51,12 +51,28 @@ nav a:hover {
 
 .hero h1 {
     font-size: 3rem;
-    animation: fadeIn 2s ease;
+    margin: 0;
 }
 
-.hero p {
+.subtitle {
+    margin-top: 10px;
+    font-size: 1.2rem;
     opacity: 0.7;
-    animation: fadeIn 3s ease;
+}
+
+/* BUTTON */
+.btn {
+    margin-top: 25px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    background: #00ffff;
+    color: black;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #00cccc;
 }
 
 /* PROJECTS */
@@ -86,7 +102,6 @@ nav a:hover {
     background: #222;
 }
 
-/* SCROLL ANIMATION */
 .show {
     transform: translateY(0);
     opacity: 1;
@@ -97,26 +112,25 @@ nav a:hover {
     padding: 100px 20px;
     text-align: center;
 }
-
-/* ANIMATIONS */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px);}
-    to { opacity: 1; transform: translateY(0);}
-}
 </style>
 </head>
 
 <body>
 
 <nav>
-    <a href="#home">Home</a>
-    <a href="#projects">Projects</a>
-    <a href="#contact">Contact</a>
+    <div class="left">
+        <a href="#home">Home</a>
+        <a href="#projects">Projects</a>
+        <a href="#contact">Contact</a>
+    </div>
+    <div class="right">~/pepc84</div>
 </nav>
 
 <section class="hero" id="home">
     <h1>Pep</h1>
-    <p>EECS • Builder • Lowkey cracked</p>
+    <div class="subtitle">Jose Llamas</div>
+
+    <a href="resume.pdf" class="btn" target="_blank">View Resume</a>
 </section>
 
 <section class="section" id="projects">
@@ -135,7 +149,6 @@ nav a:hover {
 </section>
 
 <script>
-// scroll animation
 const cards = document.querySelectorAll('.card');
 
 window.addEventListener('scroll', () => {
@@ -143,7 +156,6 @@ window.addEventListener('scroll', () => {
 
     cards.forEach(card => {
         const top = card.getBoundingClientRect().top;
-
         if(top < trigger) {
             card.classList.add('show');
         }
