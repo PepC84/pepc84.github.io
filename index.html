@@ -13,15 +13,68 @@ body {
     overflow: hidden;
 }
 
-/* FULLSCREEN GRID HOME */
+/* ===== TOP UI ===== */
+
+.badge {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    border: 1px solid white;
+    padding: 10px 14px;
+    z-index: 20;
+    animation: fadeIn 1s ease;
+}
+
+.actions {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 20;
+}
+
+button {
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: white;
+    color: black;
+    transform: scale(1.05);
+}
+
+/* ===== IDENTITY ===== */
+
+.identity {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    z-index: 20;
+    animation: slideUp 1s ease;
+}
+
+.identity .name {
+    font-size: clamp(24px, 4vw, 48px);
+}
+
+.identity .sub {
+    font-size: clamp(14px, 2vw, 20px);
+    opacity: 0.7;
+}
+
+/* ===== HOME GRID ===== */
 
 #home {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     height: 100vh;
 }
-
-/* EACH PANEL */
 
 .panel {
     position: relative;
@@ -34,15 +87,13 @@ body {
     height: 100%;
     object-fit: cover;
     filter: brightness(0.5);
-    transition: 0.4s;
+    transition: 0.5s;
 }
 
 .panel:hover img {
+    transform: scale(1.08);
     filter: brightness(0.8);
-    transform: scale(1.05);
 }
-
-/* TEXT OVERLAY */
 
 .overlay {
     position: absolute;
@@ -59,49 +110,7 @@ body {
     opacity: 0.7;
 }
 
-/* NAME FIXED (NO SCROLL EVER) */
-
-.identity {
-    position: fixed;
-    bottom: 30px;
-    left: 30px;
-    z-index: 10;
-}
-
-.identity .name {
-    font-size: clamp(24px, 4vw, 48px);
-}
-
-.identity .sub {
-    font-size: clamp(14px, 2vw, 20px);
-    opacity: 0.7;
-}
-
-/* TOP RIGHT */
-
-.topbar {
-    position: fixed;
-    top: 20px;
-    right: 30px;
-    text-align: right;
-    z-index: 10;
-}
-
-button {
-    background: transparent;
-    border: 1px solid white;
-    color: white;
-    padding: 8px 14px;
-    margin-top: 8px;
-    cursor: pointer;
-}
-
-button:hover {
-    background: white;
-    color: black;
-}
-
-/* OVERLAY PAGE */
+/* ===== PAGES ===== */
 
 .page {
     display: none;
@@ -109,7 +118,8 @@ button:hover {
     inset: 0;
     background: black;
     overflow-y: auto;
-    padding: 40px;
+    padding: 60px 40px;
+    animation: fadeIn 0.4s ease;
 }
 
 .close {
@@ -118,35 +128,86 @@ button:hover {
     left: 20px;
     font-size: 24px;
     cursor: pointer;
+    z-index: 30;
 }
 
-/* PROJECT CARDS */
+/* ===== PROJECTS ===== */
 
 .project {
     display: flex;
     margin-bottom: 40px;
     align-items: center;
+    animation: fadeIn 0.6s ease;
 }
 
 .project img {
     width: 260px;
     margin-right: 20px;
+    transition: 0.3s;
+}
+
+.project img:hover {
+    transform: scale(1.05);
 }
 
 video {
     max-width: 500px;
+    margin-top: 20px;
 }
 
-/* GRID GALLERY */
+/* ===== GALLERY ===== */
 
 .gallery {
     display: flex;
     flex-wrap: wrap;
+    margin-top: 30px;
 }
 
 .gallery img {
     width: 200px;
     margin: 10px;
+    transition: 0.3s;
+}
+
+.gallery img:hover {
+    transform: scale(1.1);
+}
+
+/* ===== CONTACT MODAL ===== */
+
+.contactModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.contactBox {
+    border: 1px solid white;
+    padding: 40px;
+    text-align: center;
+    background: black;
+    animation: pop 0.3s ease;
+}
+
+/* ===== ANIMATIONS ===== */
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes pop {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
 
 </style>
@@ -154,23 +215,26 @@ video {
 
 <body>
 
+<!-- TOP LEFT -->
+<div class="badge">~/pepc84</div>
+
 <!-- TOP RIGHT -->
-<div class="topbar">
-    ~/pepc84<br>
-    <a href="mailto:j.llamas@berkeley.edu"><button>Email</button></a><br>
-    <a href="files/Resume.pdf" target="_blank"><button>Resume</button></a>
+<div class="actions">
+    <a href="files/Resume.pdf" target="_blank">
+        <button>Resume</button>
+    </a>
+    <button onclick="openContact()">Contact</button>
 </div>
 
-<!-- NAME (ALWAYS VISIBLE, NO SCROLL) -->
+<!-- NAME -->
 <div class="identity">
     <div class="name">Jose Llamas</div>
     <div class="sub">Sophomore @ UC Berkeley EECS</div>
 </div>
 
-<!-- HOME GRID -->
+<!-- HOME -->
 <div id="home">
 
-    <!-- EE LAB -->
     <div class="panel" onclick="openPage('lab')">
         <img src="files/lab.jpg">
         <div class="overlay">
@@ -179,7 +243,6 @@ video {
         </div>
     </div>
 
-    <!-- CS IDE -->
     <div class="panel" onclick="openPage('ide')">
         <img src="files/bldc_controller.jpg">
         <div class="overlay">
@@ -188,7 +251,6 @@ video {
         </div>
     </div>
 
-    <!-- MATH / GAMES -->
     <div class="panel" onclick="openPage('games')">
         <img src="files/violin_top.jpg">
         <div class="overlay">
@@ -207,17 +269,12 @@ video {
 
     <div class="project">
         <img src="files/bldc_controller.jpg">
-        <div>
-            Custom BLDC motor + controller  
-            built from scratch with hall sensors and ESC logic  
-        </div>
+        <div>Custom BLDC motor and controller</div>
     </div>
 
     <div class="project">
         <img src="files/bldc_magnets.jpg">
-        <div>
-            Rotor magnet configuration and torque optimization  
-        </div>
+        <div>Magnet layout and torque design</div>
     </div>
 
     <video controls>
@@ -239,14 +296,7 @@ video {
 
     <div class="project">
         <img src="files/lab.jpg">
-        <div>
-            Custom lightweight IDE built for C/C++ workflows  
-            designed for speed and minimalism  
-        </div>
-    </div>
-
-    <div class="gallery">
-        <img src="files/lab.jpg">
+        <div>Lightweight custom C/C++ IDE</div>
     </div>
 </div>
 
@@ -254,22 +304,27 @@ video {
 <div id="games" class="page">
     <div class="close" onclick="closePage()">X</div>
 
-    <h2>Games / Simulation</h2>
+    <h2>Projects / Simulation</h2>
 
     <div class="project">
         <img src="files/violin_top.jpg">
-        <div>
-            Physics-based experiments and creative builds  
-        </div>
+        <div>Physics experiments</div>
     </div>
 
     <div class="project">
         <img src="files/violin_side.jpg">
     </div>
+</div>
 
-    <div class="gallery">
-        <img src="files/violin_top.jpg">
-        <img src="files/violin_side.jpg">
+<!-- CONTACT -->
+<div id="contact" class="contactModal">
+    <div class="contactBox">
+        <div class="close" onclick="closeContact()">X</div>
+        <h2>Jose Llamas</h2>
+        <p>j.llamas@berkeley.edu</p>
+        <a href="mailto:j.llamas@berkeley.edu">
+            <button>Email Me</button>
+        </a>
     </div>
 </div>
 
@@ -280,6 +335,14 @@ function openPage(id) {
 
 function closePage() {
     document.querySelectorAll(".page").forEach(p => p.style.display = "none");
+}
+
+function openContact() {
+    document.getElementById("contact").style.display = "flex";
+}
+
+function closeContact() {
+    document.getElementById("contact").style.display = "none";
 }
 </script>
 
