@@ -13,14 +13,14 @@ body {
     overflow-x: hidden;
 }
 
-/* LANDING */
+/* landing */
 #landing {
-    position: relative;
     height: 100vh;
-    background: url("files/lab.JPG") center/cover no-repeat;
+    background-size: cover;
+    background-position: center;
+    position: relative;
 }
 
-/* dark overlay */
 #landing::after {
     content: "";
     position: absolute;
@@ -39,22 +39,15 @@ body {
     z-index: 2;
 }
 
-.resume {
-    padding: 8px 16px;
+.resume, .email {
     border: 1px solid white;
+    padding: 8px 14px;
     cursor: pointer;
-}
-.resume:hover {
-    background: white;
-    color: black;
 }
 
-.email {
-    cursor: pointer;
-    opacity: 0.8;
-}
-.email:hover {
-    opacity: 1;
+.resume:hover, .email:hover {
+    background: white;
+    color: black;
 }
 
 /* title */
@@ -70,34 +63,22 @@ body {
     font-size: 48px;
 }
 
-#title p {
-    margin: 5px 0;
-    opacity: 0.7;
-}
-
 /* zones */
 .zone {
     position: absolute;
-    z-index: 2;
     cursor: pointer;
+    z-index: 2;
 }
 
 .zone:hover {
-    outline: 2px solid rgba(255,255,255,0.6);
+    outline: 2px solid white;
 }
 
-/* PROJECT SECTION */
+/* sections */
 .section {
-    min-height: 100vh;
     padding: 80px 40px;
-    background: black;
 }
 
-.section h2 {
-    font-size: 32px;
-}
-
-/* gallery */
 .gallery {
     display: flex;
     flex-direction: column;
@@ -109,11 +90,10 @@ body {
     max-width: 900px;
 }
 
-/* back button */
 .back {
     margin-top: 40px;
-    padding: 10px 20px;
     border: 1px solid white;
+    padding: 10px 20px;
     display: inline-block;
     cursor: pointer;
 }
@@ -122,12 +102,10 @@ body {
 
 <body>
 
-<!-- LANDING -->
 <div id="landing">
-
     <div id="header">
         <div class="email" onclick="location.href='mailto:j.llamas@berkeley.edu'">
-            j.llamas@berkeley.edu
+            Email
         </div>
 
         <div class="resume" onclick="window.open('files/Resume.pdf')">
@@ -138,82 +116,104 @@ body {
     <div id="title">
         <h1>Jose Llamas</h1>
         <p>Sophomore @ UC Berkeley EECS</p>
-        <p>click the lab to explore</p>
     </div>
 
-    <!-- CLICK ZONES -->
-
-    <!-- BLDC -->
-    <div class="zone" style="top:40%; left:30%; width:200px; height:200px;"
-         onclick="scrollToSection('bldc')"></div>
-
-    <!-- VIOLIN -->
-    <div class="zone" style="top:50%; left:55%; width:200px; height:200px;"
-         onclick="scrollToSection('violin')"></div>
-
-    <!-- OSCILLOSCOPE -->
-    <div class="zone" style="top:30%; left:75%; width:200px; height:200px;"
-         onclick="scrollToSection('scope')"></div>
-
+    <div id="zones"></div>
 </div>
 
-<!-- BLDC SECTION -->
-<div class="section" id="bldc">
-    <h2>BLDC Motor + Controller</h2>
-
-    <div class="gallery">
-        <img src="files/bldc_controller.JPG">
-        <img src="files/bldc_magnets.JPG">
-    </div>
-
-    <p>
-        Custom built brushless motor with hall sensors and discrete MOSFET control.
-        Designed for torque optimization and modular testing.
-    </p>
-
-    <div class="back" onclick="scrollToTop()">Back to Lab</div>
-</div>
-
-<!-- VIOLIN SECTION -->
-<div class="section" id="violin">
-    <h2>Electric Violin Project</h2>
-
-    <div class="gallery">
-        <img src="files/violin_top.JPG">
-        <img src="files/violin_side.JPG">
-    </div>
-
-    <p>
-        Custom electric violin with experimental pickup design and resonance tuning.
-    </p>
-
-    <div class="back" onclick="scrollToTop()">Back to Lab</div>
-</div>
-
-<!-- OSCILLOSCOPE SECTION -->
-<div class="section" id="scope">
-    <h2>Oscilloscope Animation</h2>
-
-    <div class="gallery">
-        <video src="files/oscilloscope.mp4" controls></video>
-    </div>
-
-    <p>
-        Rendering Bad Apple waveform on an oscilloscope using signal synthesis.
-    </p>
-
-    <div class="back" onclick="scrollToTop()">Back to Lab</div>
-</div>
-
+<div id="projects"></div>
 
 <script>
-function scrollToSection(id) {
-    document.getElementById(id).scrollIntoView({ behavior: "smooth" });
-}
 
-function scrollToTop() {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+/* =========================
+   🔧 EDIT ONLY THIS SECTION
+========================= */
+
+const projects = [
+{
+    id: "bldc",
+    title: "BLDC Motor + Controller",
+    bgZone: { top:"40%", left:"30%", w:"200px", h:"200px" },
+    files: [
+        "bldc_controller.JPG",
+        "bldc_magnets.JPG"
+    ]
+},
+{
+    id: "violin",
+    title: "Electric Violin",
+    bgZone: { top:"50%", left:"55%", w:"200px", h:"200px" },
+    files: [
+        "violin_top.JPG",
+        "violin_side.JPG"
+    ]
+},
+{
+    id: "scope",
+    title: "Oscilloscope",
+    bgZone: { top:"30%", left:"75%", w:"200px", h:"200px" },
+    files: [
+        "oscilloscope.mp4"
+    ]
 }
+];
+
+// background image
+const backgroundImage = "files/lab.JPG";
+
+/* =========================
+   ⚙️ DO NOT TOUCH BELOW
+========================= */
+
+// set background
+document.getElementById("landing").style.backgroundImage = `url(${backgroundImage})`;
+
+// create zones
+const zonesContainer = document.getElementById("zones");
+
+projects.forEach(p => {
+    const z = document.createElement("div");
+    z.className = "zone";
+    z.style.top = p.bgZone.top;
+    z.style.left = p.bgZone.left;
+    z.style.width = p.bgZone.w;
+    z.style.height = p.bgZone.h;
+
+    z.onclick = () => {
+        document.getElementById(p.id).scrollIntoView({ behavior: "smooth" });
+    };
+
+    zonesContainer.appendChild(z);
+});
+
+// create sections
+const projectContainer = document.getElementById("projects");
+
+projects.forEach(p => {
+
+    const section = document.createElement("div");
+    section.className = "section";
+    section.id = p.id;
+
+    let html = `<h2>${p.title}</h2><div class="gallery">`;
+
+    p.files.forEach(file => {
+        if (file.endsWith(".mp4")) {
+            html += `<video src="files/${file}" controls></video>`;
+        } else {
+            html += `<img src="files/${file}">`;
+        }
+    });
+
+    html += `</div>
+    <div class="back" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+        Back to Lab
+    </div>`;
+
+    section.innerHTML = html;
+    projectContainer.appendChild(section);
+});
+
 </script>
 
 </body>
