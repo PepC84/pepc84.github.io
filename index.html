@@ -10,48 +10,45 @@ body {
     font-family: monospace;
     background: black;
     color: white;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
-/* Background lab image */
-#lab {
-    position: fixed;
-    width: 100vw;
+/* LANDING */
+#landing {
+    position: relative;
     height: 100vh;
     background: url("files/lab.JPG") center/cover no-repeat;
 }
 
-/* Overlay (darken) */
-#overlay {
-    position: fixed;
+/* dark overlay */
+#landing::after {
+    content: "";
+    position: absolute;
     width: 100%;
     height: 100%;
     background: rgba(0,0,0,0.4);
 }
 
-/* Header */
+/* header */
 #header {
-    position: fixed;
+    position: absolute;
     top: 20px;
     right: 40px;
     display: flex;
     gap: 20px;
-    align-items: center;
+    z-index: 2;
 }
 
-/* Resume button */
 .resume {
     padding: 8px 16px;
     border: 1px solid white;
     cursor: pointer;
-    transition: 0.2s;
 }
 .resume:hover {
     background: white;
     color: black;
 }
 
-/* Email */
 .email {
     cursor: pointer;
     opacity: 0.8;
@@ -60,65 +57,64 @@ body {
     opacity: 1;
 }
 
-/* Title */
+/* title */
 #title {
-    position: fixed;
+    position: absolute;
     bottom: 40px;
     left: 40px;
+    z-index: 2;
 }
 
 #title h1 {
     margin: 0;
-    font-size: 40px;
+    font-size: 48px;
 }
 
 #title p {
-    margin: 5px 0 0;
+    margin: 5px 0;
     opacity: 0.7;
 }
 
-/* Click zones */
+/* zones */
 .zone {
     position: absolute;
+    z-index: 2;
     cursor: pointer;
 }
 
-/* Hover glow */
 .zone:hover {
-    outline: 2px solid rgba(255,255,255,0.5);
+    outline: 2px solid rgba(255,255,255,0.6);
 }
 
-/* Modal */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.9);
-    display: none;
-    justify-content: center;
-    align-items: center;
+/* PROJECT SECTION */
+.section {
+    min-height: 100vh;
+    padding: 80px 40px;
+    background: black;
+}
+
+.section h2 {
+    font-size: 32px;
+}
+
+/* gallery */
+.gallery {
+    display: flex;
     flex-direction: column;
+    gap: 20px;
 }
 
-.modal img, .modal video {
-    max-width: 80%;
-    max-height: 70%;
+.gallery img, .gallery video {
+    width: 100%;
+    max-width: 900px;
 }
 
-.close {
-    position: absolute;
-    top: 20px;
-    right: 40px;
-    font-size: 24px;
-    cursor: pointer;
-}
-
-.button {
-    margin-top: 20px;
+/* back button */
+.back {
+    margin-top: 40px;
     padding: 10px 20px;
     border: 1px solid white;
+    display: inline-block;
     cursor: pointer;
 }
 </style>
@@ -126,70 +122,97 @@ body {
 
 <body>
 
-<div id="lab"></div>
-<div id="overlay"></div>
+<!-- LANDING -->
+<div id="landing">
 
-<!-- Header -->
-<div id="header">
-    <div class="email" onclick="location.href='mailto:j.llamas@berkeley.edu'">
-        j.llamas@berkeley.edu
+    <div id="header">
+        <div class="email" onclick="location.href='mailto:j.llamas@berkeley.edu'">
+            j.llamas@berkeley.edu
+        </div>
+
+        <div class="resume" onclick="window.open('files/Resume.pdf')">
+            Resume
+        </div>
     </div>
 
-    <div class="resume" onclick="window.open('files/Resume.pdf')">
-        Resume
+    <div id="title">
+        <h1>Jose Llamas</h1>
+        <p>Sophomore @ UC Berkeley EECS</p>
+        <p>click the lab to explore</p>
     </div>
+
+    <!-- CLICK ZONES -->
+
+    <!-- BLDC -->
+    <div class="zone" style="top:40%; left:30%; width:200px; height:200px;"
+         onclick="scrollToSection('bldc')"></div>
+
+    <!-- VIOLIN -->
+    <div class="zone" style="top:50%; left:55%; width:200px; height:200px;"
+         onclick="scrollToSection('violin')"></div>
+
+    <!-- OSCILLOSCOPE -->
+    <div class="zone" style="top:30%; left:75%; width:200px; height:200px;"
+         onclick="scrollToSection('scope')"></div>
+
 </div>
 
-<!-- Title -->
-<div id="title">
-    <h1>Jose Llamas</h1>
-    <p>Sophomore @ UC Berkeley EECS</p>
+<!-- BLDC SECTION -->
+<div class="section" id="bldc">
+    <h2>BLDC Motor + Controller</h2>
+
+    <div class="gallery">
+        <img src="files/bldc_controller.JPG">
+        <img src="files/bldc_magnets.JPG">
+    </div>
+
+    <p>
+        Custom built brushless motor with hall sensors and discrete MOSFET control.
+        Designed for torque optimization and modular testing.
+    </p>
+
+    <div class="back" onclick="scrollToTop()">Back to Lab</div>
 </div>
 
-<!-- Clickable zones -->
+<!-- VIOLIN SECTION -->
+<div class="section" id="violin">
+    <h2>Electric Violin Project</h2>
 
-<!-- BLDC Motor -->
-<div class="zone" style="top:40%; left:30%; width:200px; height:200px;"
-     onclick="openModal('motor')"></div>
+    <div class="gallery">
+        <img src="files/violin_top.JPG">
+        <img src="files/violin_side.JPG">
+    </div>
 
-<!-- Violin -->
-<div class="zone" style="top:50%; left:55%; width:200px; height:200px;"
-     onclick="openModal('violin')"></div>
+    <p>
+        Custom electric violin with experimental pickup design and resonance tuning.
+    </p>
 
-<!-- Oscilloscope -->
-<div class="zone" style="top:30%; left:75%; width:200px; height:200px;"
-     onclick="openModal('scope')"></div>
-
-
-<!-- Motor Modal -->
-<div class="modal" id="motor">
-    <div class="close" onclick="closeModal()">✕</div>
-    <img src="files/bldc_controller.JPG">
-    <div class="button">BLDC Motor + Controller</div>
+    <div class="back" onclick="scrollToTop()">Back to Lab</div>
 </div>
 
-<!-- Violin Modal -->
-<div class="modal" id="violin">
-    <div class="close" onclick="closeModal()">✕</div>
-    <img src="files/violin_top.JPG">
-    <div class="button">Electric Violin Project</div>
-</div>
+<!-- OSCILLOSCOPE SECTION -->
+<div class="section" id="scope">
+    <h2>Oscilloscope Animation</h2>
 
-<!-- Oscilloscope Modal -->
-<div class="modal" id="scope">
-    <div class="close" onclick="closeModal()">✕</div>
-    <video src="files/oscilloscope.mp4" controls autoplay></video>
-    <div class="button">Bad Apple on Oscilloscope</div>
+    <div class="gallery">
+        <video src="files/oscilloscope.mp4" controls></video>
+    </div>
+
+    <p>
+        Rendering Bad Apple waveform on an oscilloscope using signal synthesis.
+    </p>
+
+    <div class="back" onclick="scrollToTop()">Back to Lab</div>
 </div>
 
 
 <script>
-function openModal(id) {
-    document.getElementById(id).style.display = "flex";
+function scrollToSection(id) {
+    document.getElementById(id).scrollIntoView({ behavior: "smooth" });
 }
 
-function closeModal() {
-    document.querySelectorAll(".modal").forEach(m => m.style.display = "none");
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
 }
 </script>
 
