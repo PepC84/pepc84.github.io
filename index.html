@@ -10,181 +10,216 @@ body {
     font-family: monospace;
     background: black;
     color: white;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
-/* background lab */
-#lab {
-    position: fixed;
-    width: 100vw;
+/* HOME SCREEN */
+
+#home {
     height: 100vh;
-    background: url("files/lab.jpg") center/cover no-repeat;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 40px;
 }
 
-/* overlay */
-#overlay {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.4);
+.name {
+    font-size: 48px;
 }
 
-/* header */
-#header {
+.subtitle {
+    font-size: 20px;
+    opacity: 0.7;
+}
+
+.topbar {
     position: fixed;
     top: 20px;
-    right: 40px;
-    display: flex;
-    gap: 20px;
-    z-index: 2;
+    right: 30px;
+    text-align: right;
 }
 
-.resume, .email {
+button {
+    background: transparent;
     border: 1px solid white;
-    padding: 8px 14px;
+    color: white;
+    padding: 10px 16px;
     cursor: pointer;
+    margin-top: 10px;
 }
 
-.resume:hover, .email:hover {
+button:hover {
     background: white;
     color: black;
 }
 
-/* title */
-#title {
+/* LAB PAGE */
+
+#labPage {
+    display: none;
     position: fixed;
-    bottom: 40px;
-    left: 40px;
-    z-index: 2;
+    inset: 0;
+    background: black;
 }
 
-#title h1 {
-    margin: 0;
-    font-size: 48px;
+#labBackground {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-/* zones */
+/* clickable zones */
+
 .zone {
     position: absolute;
+    border: 2px solid rgba(255,255,255,0.3);
     cursor: pointer;
-    z-index: 2;
 }
 
 .zone:hover {
-    outline: 2px solid rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.1);
 }
 
 /* modal */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
 
-    background: rgba(0,0,0,0.95);
+#modal {
     display: none;
-
-    flex-direction: column;
-    align-items: center;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.95);
+    padding: 40px;
     overflow-y: auto;
 }
 
-/* modal content */
-.modal-content {
-    margin-top: 80px;
-    width: 90%;
-    max-width: 900px;
+#modal img {
+    width: 300px;
+    margin: 10px;
 }
 
-.modal img, .modal video {
-    width: 100%;
-    margin-bottom: 20px;
-}
-
-/* close button */
 .close {
     position: fixed;
     top: 20px;
-    right: 40px;
-    font-size: 28px;
+    left: 20px;
+    font-size: 24px;
     cursor: pointer;
 }
+
+/* projects section */
+
+.project {
+    display: flex;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.project img {
+    width: 250px;
+    margin-right: 20px;
+}
+
+/* scroll gallery */
+
+.gallery {
+    margin-top: 40px;
+}
+
+.gallery img {
+    width: 200px;
+    margin: 10px;
+}
+
 </style>
 </head>
 
 <body>
 
-<div id="lab"></div>
-<div id="overlay"></div>
-
-<!-- header -->
-<div id="header">
-    <div class="email" onclick="location.href='mailto:j.llamas@berkeley.edu'">
-        Email
-    </div>
-
-    <div class="resume" onclick="window.open('files/Resume.pdf')">
-        Resume
-    </div>
+<!-- TOP RIGHT -->
+<div class="topbar">
+    ~/pepc84<br>
+    <a href="mailto:j.llamas@berkeley.edu"><button>Email</button></a><br>
+    <a href="files/Resume.pdf" target="_blank"><button>Resume</button></a><br>
+    <button onclick="openLab()">Check the Lab</button>
 </div>
 
-<!-- title -->
-<div id="title">
-    <h1>Jose Llamas</h1>
-    <p>Sophomore @ UC Berkeley EECS</p>
-    <p>click the lab to explore</p>
+<!-- HOME -->
+<div id="home">
+    <div class="name">Jose Llamas</div>
+    <div class="subtitle">Sophomore @ UC Berkeley EECS</div>
 </div>
 
-<!-- zones -->
+<!-- LAB PAGE -->
+<div id="labPage">
+    <img id="labBackground" src="files/lab.jpg">
 
-<div class="zone" style="top:40%; left:30%; width:200px; height:200px;"
-     onclick="openModal('bldc')"></div>
+    <!-- clickable areas -->
+    <div class="zone" style="top:40%; left:30%; width:15%; height:20%;" onclick="openProject('motor')"></div>
+    <div class="zone" style="top:50%; left:55%; width:15%; height:20%;" onclick="openProject('violin')"></div>
+    <div class="zone" style="top:30%; left:75%; width:10%; height:20%;" onclick="openProject('scope')"></div>
+</div>
 
-<div class="zone" style="top:50%; left:55%; width:200px; height:200px;"
-     onclick="openModal('violin')"></div>
+<!-- MODAL -->
+<div id="modal">
+    <div class="close" onclick="closeModal()">X</div>
 
-<div class="zone" style="top:30%; left:75%; width:200px; height:200px;"
-     onclick="openModal('scope')"></div>
-
-
-<!-- BLDC -->
-<div class="modal" id="bldc">
-    <div class="close" onclick="closeModal()">✕</div>
-    <div class="modal-content">
-        <h2>BLDC Motor + Controller</h2>
-        <img src="files/bldc_controller.jpg">
+    <div id="motor" class="content">
+        <div class="project">
+            <img src="files/bldc_controller.jpg">
+            <div>
+                Brushless motor controller built from scratch  
+                custom ESC design and hall sensor feedback  
+            </div>
+        </div>
         <img src="files/bldc_magnets.jpg">
     </div>
-</div>
 
-<!-- VIOLIN -->
-<div class="modal" id="violin">
-    <div class="close" onclick="closeModal()">✕</div>
-    <div class="modal-content">
-        <h2>Electric Violin</h2>
-        <img src="files/violin_top.jpg">
+    <div id="violin" class="content" style="display:none;">
+        <div class="project">
+            <img src="files/violin_top.jpg">
+            <div>
+                Custom violin experiment and acoustic testing  
+            </div>
+        </div>
         <img src="files/violin_side.jpg">
     </div>
-</div>
 
-<!-- OSCILLOSCOPE -->
-<div class="modal" id="scope">
-    <div class="close" onclick="closeModal()">✕</div>
-    <div class="modal-content">
-        <h2>Oscilloscope</h2>
-        <video src="files/oscilloscope.mp4" controls autoplay></video>
+    <div id="scope" class="content" style="display:none;">
+        <div class="project">
+            <div>
+                Oscilloscope rendering Bad Apple waveform  
+            </div>
+        </div>
+        <video width="500" controls>
+            <source src="files/oscilloscope.mp4" type="video/mp4">
+        </video>
     </div>
-</div>
 
+    <!-- SCROLLABLE GALLERY -->
+    <div class="gallery">
+        <h3>More Photos</h3>
+        <img src="files/bldc_controller.jpg">
+        <img src="files/bldc_magnets.jpg">
+        <img src="files/violin_top.jpg">
+        <img src="files/violin_side.jpg">
+        <img src="files/lab.jpg">
+    </div>
+
+</div>
 
 <script>
-function openModal(id) {
-    document.getElementById(id).style.display = "flex";
+function openLab() {
+    document.getElementById("labPage").style.display = "block";
+}
+
+function openProject(name) {
+    document.getElementById("modal").style.display = "block";
+
+    document.querySelectorAll(".content").forEach(el => el.style.display = "none");
+    document.getElementById(name).style.display = "block";
 }
 
 function closeModal() {
-    document.querySelectorAll(".modal").forEach(m => m.style.display = "none");
+    document.getElementById("modal").style.display = "none";
 }
 </script>
 
