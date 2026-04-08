@@ -171,6 +171,7 @@ video {
 
 .gallery img:hover {
     transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(255,255,255,0.4);
 }
 
 /* ===== CONTACT MODAL ===== */
@@ -235,6 +236,7 @@ video {
 <!-- HOME -->
 <div id="home">
 
+    <!-- EE -->
     <div class="panel" onclick="openPage('lab')">
         <img src="files/lab.jpg">
         <div class="overlay">
@@ -243,14 +245,16 @@ video {
         </div>
     </div>
 
+    <!-- CS (IDE) -->
     <div class="panel" onclick="openPage('ide')">
-        <img src="files/bldc_controller.jpg">
+        <img src="files/ProcessingGL_1.png">
         <div class="overlay">
             <div class="title">CS</div>
             <div class="subtitle">Simple++ IDE</div>
         </div>
     </div>
 
+    <!-- MATH -->
     <div class="panel" onclick="openPage('games')">
         <img src="files/violin_top.jpg">
         <div class="overlay">
@@ -294,9 +298,27 @@ video {
 
     <h2>Simple++ IDE</h2>
 
+    <div style="margin-bottom:40px;">
+        <img src="files/ProcessingGL_1.png" style="
+            width:100%;
+            max-width:900px;
+            display:block;
+            margin:auto;
+            border:1px solid white;
+            transition:0.4s;
+        " onmouseover="this.style.transform='scale(1.02)'" 
+           onmouseout="this.style.transform='scale(1)'">
+    </div>
+
     <div class="project">
-        <img src="files/lab.jpg">
-        <div>Lightweight custom C/C++ IDE</div>
+        <div>
+            Simple++ is a custom lightweight IDE designed for fast C/C++ workflows.  
+            Built for performance, minimalism, and real-time graphics integration.  
+        </div>
+    </div>
+
+    <div class="gallery">
+        <img src="files/ProcessingGL_1.png">
     </div>
 </div>
 
