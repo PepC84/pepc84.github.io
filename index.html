@@ -1,4 +1,255 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>~/pepc84</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: black;
+    color: white;
+    overflow: hidden;
+}
+
+/* NAVBAR */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 60px;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 1000;
+}
+
+.logo {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.nav-buttons button, .nav-buttons a {
+    margin-left: 15px;
+    background: none;
+    border: 1px solid white;
+    color: white;
+    padding: 6px 10px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.nav-buttons button:hover, .nav-buttons a:hover {
+    background: white;
+    color: black;
+}
+
+/* CONTACT POPUP */
+.popup {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    background: black;
+    border: 1px solid white;
+    padding: 15px;
+    display: none;
+    z-index: 2000;
+}
+
+/* PAGES */
+.page {
+    width: 100%;
+    height: 100vh;
+    display: none;
+}
+
+#home {
+    display: flex;
+}
+
+.section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    cursor: pointer;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.3s, opacity 0.3s;
+    opacity: 0.6;
+}
+
+.section:hover {
+    transform: scale(1.05);
+    opacity: 1;
+}
+
+/* LAB PAGE */
+#lab {
+    overflow-y: auto;
+    padding-top: 80px;
+}
+
+.project {
+    display: flex;
+    padding: 40px;
+    border-bottom: 1px solid #333;
+}
+
+.project img {
+    width: 250px;
+    margin-right: 20px;
+}
+
+.project-content {
+    max-width: 800px;
+}
+
+.project button {
+    margin-top: 10px;
+    padding: 6px 10px;
+    border: 1px solid white;
+    background: none;
+    color: white;
+    cursor: pointer;
+}
+
+.project button:hover {
+    background: white;
+    color: black;
+}
+
+.details {
+    display: none;
+    margin-top: 10px;
+    color: #ccc;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="logo" onclick="showPage('home')">~/pepc84</div>
+    <div class="nav-buttons">
+        <a href="files/Resume.pdf" target="_blank">Resume</a>
+        <button onclick="toggleContact()">Contact</button>
+        <a href="https://github.com/PepC84" target="_blank">GitHub</a>
+    </div>
+</div>
+
+<div class="popup" id="contactPopup">
+    <p>Jose Llamas</p>
+    <p>j.llamas@berkeley.edu</p>
+    <a href="mailto:j.llamas@berkeley.edu" style="color:white;">Email Me</a>
+</div>
+
+<!-- HOME -->
+<div id="home" class="page">
+    <div class="section" style="background-image:url('lab.jpg')" onclick="showPage('lab')">EE</div>
+    <div class="section" style="background-image:url('ProcessingGL_1.png')" onclick="showPage('lab')">CS</div>
+    <div class="section" style="background-image:url('stats_1.png')" onclick="showPage('lab')">Math</div>
+</div>
+
+<!-- LAB -->
+<div id="lab" class="page">
+
+    <div class="project">
+        <img src="ProcessingGL_1.png">
+        <div class="project-content">
+            <h2>ProcessingGL</h2>
+            <p>C++ OpenGL creative coding framework with a custom IDE designed for performance and low level control.</p>
+            <a href="https://github.com/PepC84/ProcessingGL" target="_blank">
+                <button>View GitHub</button>
+            </a>
+            <button onclick="toggleDetails('p1')">Details</button>
+            <div class="details" id="p1">
+                Custom rendering pipeline, real time interaction, lightweight architecture, designed as a modern alternative to Processing.
+            </div>
+        </div>
+    </div>
+
+    <div class="project">
+        <img src="bldc_magnets.jpg">
+        <div class="project-content">
+            <h2>BLDC Motor</h2>
+            <p>Custom built brushless DC motor with magnetic rotor and controller.</p>
+            <button onclick="toggleDetails('p2')">Details</button>
+            <div class="details" id="p2">
+                Includes custom winding design, hall sensors, and MOSFET driver circuit.
+                <br><br>
+                <img src="bldc_controller.jpg" style="width:200px;">
+            </div>
+        </div>
+    </div>
+
+    <div class="project">
+        <img src="bezier_1.png">
+        <div class="project-content">
+            <h2>Bezier Engine</h2>
+            <p>High precision curve rendering engine with custom lookup tables.</p>
+        </div>
+    </div>
+
+    <div class="project">
+        <img src="violin_top.jpg">
+        <div class="project-content">
+            <h2>Violin Build</h2>
+            <p>Handcrafted violin exploring acoustics and structural design.</p>
+            <br>
+            <img src="violin_side.jpg" style="width:200px;">
+        </div>
+    </div>
+
+    <div class="project">
+        <img src="stats_1.png">
+        <div class="project-content">
+            <h2>Statistical Modeling</h2>
+            <p>Applied statistical models and data analysis.</p>
+            <br>
+            <img src="stats_2.png" style="width:200px;">
+        </div>
+    </div>
+
+</div>
+
+<script>
+function showPage(pageId) {
+    document.getElementById("home").style.display = "none";
+    document.getElementById("lab").style.display = "none";
+
+    document.body.style.overflow = (pageId === "home") ? "hidden" : "auto";
+
+    document.getElementById(pageId).style.display = (pageId === "home") ? "flex" : "block";
+}
+
+function toggleContact() {
+    const popup = document.getElementById("contactPopup");
+    popup.style.display = (popup.style.display === "block") ? "none" : "block";
+}
+
+function toggleDetails(id) {
+    const el = document.getElementById(id);
+    el.style.display = (el.style.display === "block") ? "none" : "block";
+}
+
+/* INIT */
+showPage("home");
+</script>
+
+</body>
+</html><!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
