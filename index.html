@@ -10,6 +10,247 @@ body {
     font-family: Arial;
     background: black;
     color: white;
+}
+
+/* NAVBAR */
+#nav {
+    position: fixed;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 25px;
+    background: rgba(0,0,0,0.9);
+    z-index: 1000;
+}
+
+.square {
+    border: 2px solid white;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.square:hover {
+    background: white;
+    color: black;
+}
+
+/* PAGES */
+.page {
+    width: 100vw;
+    height: 100vh;
+    display: none;
+}
+
+.active {
+    display: block;
+}
+
+/* HOME */
+#home {
+    display: flex;
+}
+
+.section {
+    flex: 1;
+    position: relative;
+    cursor: pointer;
+}
+
+.section img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.6;
+    transition: 0.3s;
+}
+.section:hover img {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.label {
+    position: absolute;
+    bottom: 40px;
+    left: 40px;
+    font-size: 40px;
+}
+
+/* LAB PAGE */
+#lab {
+    padding: 100px 60px;
+    overflow-y: auto;
+    height: 100vh;
+}
+
+/* PROJECTS */
+.project {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 60px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.project img {
+    width: 300px;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+.project img:hover {
+    transform: scale(1.05);
+}
+
+.project-info {
+    max-width: 500px;
+}
+
+/* BUTTONS */
+button {
+    margin-top: 10px;
+    padding: 10px;
+    background: black;
+    color: white;
+    border: 2px solid white;
+    cursor: pointer;
+}
+button:hover {
+    background: white;
+    color: black;
+}
+
+/* DETAILS */
+.details {
+    max-height: 0;
+    overflow: hidden;
+    transition: 0.4s;
+}
+.details.open {
+    max-height: 500px;
+}
+
+/* CONTACT */
+#contactBox {
+    position: fixed;
+    top: 80px;
+    right: 25px;
+    background: black;
+    border: 2px solid white;
+    padding: 15px;
+    display: none;
+    z-index: 2000;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAV -->
+<div id="nav">
+    <div class="square" onclick="showPage('home')">~/pepc84</div>
+
+    <div style="display:flex; gap:10px;">
+        <a href="files/Resume.pdf" target="_blank" class="square">Resume</a>
+        <div class="square" onclick="toggleContact()">Contact</div>
+        <a href="https://github.com/PepC84" target="_blank" class="square">GitHub</a>
+    </div>
+</div>
+
+<!-- CONTACT -->
+<div id="contactBox">
+    Jose Llamas<br>
+    j.llamas@berkeley.edu<br>
+    <a href="mailto:j.llamas@berkeley.edu" style="color:white;">Send Email</a>
+</div>
+
+<!-- HOME -->
+<div id="home" class="page active">
+    <div class="section" onclick="showPage('lab')">
+        <img src="files/lab.jpg">
+        <div class="label">EE</div>
+    </div>
+
+    <div class="section" onclick="showPage('lab')">
+        <img src="files/ProcessingGL_1.png">
+        <div class="label">CS</div>
+    </div>
+
+    <div class="section" onclick="showPage('lab')">
+        <img src="files/stats_1.png">
+        <div class="label">Math</div>
+    </div>
+</div>
+
+<!-- LAB -->
+<div id="lab" class="page">
+
+    <div class="project">
+        <img src="files/ProcessingGL_1.png">
+
+        <div class="project-info">
+            <h2>Simple++ / ProcessingGL</h2>
+            <p>C++ OpenGL framework + custom IDE</p>
+
+            <a href="https://github.com/PepC84/ProcessingGL" target="_blank">
+                <button>View Repo</button>
+            </a>
+
+            <button onclick="toggleDetails('p1')">Details</button>
+
+            <div id="p1" class="details">
+                <ul>
+                    <li>OpenGL engine</li>
+                    <li>Custom IDE</li>
+                    <li>Processing-style API</li>
+                    <li>Event system</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="project">
+        <img src="files/bldc_magnets.jpg">
+        <img src="files/bldc_controller.jpg">
+
+        <div class="project-info">
+            <h2>BLDC Motor</h2>
+            <p>Custom motor + controller system</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => {
+        p.classList.remove('active');
+    });
+
+    document.getElementById(id).classList.add('active');
+}
+
+function toggleDetails(id) {
+    document.getElementById(id).classList.toggle('open');
+}
+
+function toggleContact() {
+    const box = document.getElementById('contactBox');
+    box.style.display = box.style.display === 'block' ? 'none' : 'block';
+}
+</script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Jose Llamas</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: black;
+    color: white;
     overflow: hidden;
 }
 
