@@ -16,6 +16,251 @@
 body {
     background: black;
     color: white;
+}
+
+/* NAVBAR */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 60px;
+    background: black;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 1000;
+}
+
+.logo {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.nav-buttons a, .nav-buttons button {
+    margin-left: 10px;
+    border: 1px solid white;
+    padding: 5px 10px;
+    background: none;
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.nav-buttons a:hover, .nav-buttons button:hover {
+    background: white;
+    color: black;
+}
+
+/* popup */
+.popup {
+    position: absolute;
+    right: 20px;
+    top: 60px;
+    border: 1px solid white;
+    padding: 10px;
+    display: none;
+    background: black;
+}
+
+/* PAGES */
+.page {
+    width: 100%;
+    height: 100vh;
+    display: none;
+}
+
+/* HOME */
+#home {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3rem;
+    cursor: pointer;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.6;
+    transition: 0.3s;
+}
+
+.section:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+/* LAB */
+#lab {
+    display: none;
+    height: 100vh;
+    overflow-y: auto;
+    padding-top: 70px;
+}
+
+.project {
+    display: flex;
+    gap: 20px;
+    padding: 30px;
+    border-bottom: 1px solid #333;
+}
+
+.project img, .project video {
+    width: 250px;
+}
+
+.project-content {
+    max-width: 700px;
+}
+
+button {
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="logo" onclick="showPage('home')">~/pepc84</div>
+    <div class="nav-buttons">
+        <a href="files/Resume.pdf" target="_blank">Resume</a>
+        <button onclick="toggleContact()">Contact</button>
+        <a href="https://github.com/PepC84" target="_blank">GitHub</a>
+    </div>
+</div>
+
+<div class="popup" id="contact">
+    Jose Llamas<br>
+    j.llamas@berkeley.edu<br>
+    <a href="mailto:j.llamas@berkeley.edu">Email</a>
+</div>
+
+<!-- HOME -->
+<div id="home" class="page">
+    <div class="section" style="background-image:url('files/lab.jpg')" onclick="openLab('ee')">EE</div>
+    <div class="section" style="background-image:url('files/ProcessingGL_1.png')" onclick="openLab('cs')">CS</div>
+    <div class="section" style="background-image:url('files/stats_1.png')" onclick="openLab('math')">Math</div>
+</div>
+
+<!-- LAB -->
+<div id="lab" class="page">
+    <div id="projects"></div>
+</div>
+
+<script>
+function showPage(id) {
+    document.getElementById("home").style.display = "none";
+    document.getElementById("lab").style.display = "none";
+
+    if (id === "home") {
+        document.getElementById("home").style.display = "flex";
+        document.body.style.overflow = "hidden";
+    } else {
+        document.getElementById("lab").style.display = "block";
+        document.body.style.overflow = "auto";
+    }
+}
+
+function toggleContact() {
+    let c = document.getElementById("contact");
+    c.style.display = (c.style.display === "block") ? "none" : "block";
+}
+
+/* PROJECT DATA */
+const data = {
+    ee: [
+        {
+            title: "BLDC Motor",
+            media: `<img src="files/bldc_magnets.jpg"><img src="files/bldc_controller.jpg">`,
+            desc: "Custom brushless DC motor with magnetic rotor, hall sensors, and MOSFET control stage. Designed for torque density and modular testing."
+        },
+        {
+            title: "Oscilloscope Analysis",
+            media: `<video src="files/oscilloscope.mp4" controls></video>`,
+            desc: "Signal analysis and waveform debugging for motor control and analog circuits."
+        },
+        {
+            title: "Violin Engineering",
+            media: `<img src="files/violin_top.jpg"><img src="files/violin_side.jpg">`,
+            desc: "Acoustic and structural experimentation through full violin construction."
+        }
+    ],
+
+    cs: [
+        {
+            title: "ProcessingGL",
+            media: `<img src="files/ProcessingGL_1.png">`,
+            desc: "C++ OpenGL creative coding framework with custom IDE, real-time rendering, and low-level graphics pipeline control.",
+            link: "https://github.com/PepC84/ProcessingGL"
+        }
+    ],
+
+    math: [
+        {
+            title: "Bezier Engine",
+            media: `<img src="files/bezier_1.png">`,
+            desc: "High precision Bezier curve renderer with LUT optimization and arc-length parameterization."
+        },
+        {
+            title: "Statistical Modeling",
+            media: `<img src="files/stats_1.png"><img src="files/stats_2.png">`,
+            desc: "Applied statistical modeling including regression, probability distributions, and data analysis pipelines."
+        }
+    ]
+};
+
+function openLab(category) {
+    showPage("lab");
+
+    let container = document.getElementById("projects");
+    container.innerHTML = "";
+
+    data[category].forEach(p => {
+        let div = document.createElement("div");
+        div.className = "project";
+
+        div.innerHTML = `
+            <div>${p.media}</div>
+            <div class="project-content">
+                <h2>${p.title}</h2>
+                <p>${p.desc}</p>
+                ${p.link ? `<a href="${p.link}" target="_blank"><button>GitHub</button></a>` : ""}
+            </div>
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+/* INIT */
+showPage("home");
+</script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>~/pepc84</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: black;
+    color: white;
     overflow: hidden;
 }
 
