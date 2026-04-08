@@ -22,7 +22,6 @@ body {
     border: 1px solid white;
     padding: 10px 14px;
     z-index: 20;
-    animation: fadeIn 1s ease;
 }
 
 .actions {
@@ -40,13 +39,11 @@ button {
     color: white;
     padding: 8px 14px;
     cursor: pointer;
-    transition: 0.3s;
 }
 
 button:hover {
     background: white;
     color: black;
-    transform: scale(1.05);
 }
 
 /* ===== IDENTITY ===== */
@@ -56,7 +53,6 @@ button:hover {
     bottom: 30px;
     left: 30px;
     z-index: 20;
-    animation: slideUp 1s ease;
 }
 
 .identity .name {
@@ -68,7 +64,7 @@ button:hover {
     opacity: 0.7;
 }
 
-/* ===== HOME GRID ===== */
+/* ===== HOME ===== */
 
 #home {
     display: grid;
@@ -78,7 +74,6 @@ button:hover {
 
 .panel {
     position: relative;
-    overflow: hidden;
     cursor: pointer;
 }
 
@@ -101,25 +96,46 @@ button:hover {
     left: 30px;
 }
 
-.title {
-    font-size: 32px;
-}
+/* ===== LAB SCENE ===== */
 
-.subtitle {
-    font-size: 16px;
-    opacity: 0.7;
-}
-
-/* ===== PAGES ===== */
-
-.page {
+#labScene {
     display: none;
     position: fixed;
     inset: 0;
-    background: black;
+}
+
+#labScene img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.6);
+}
+
+/* MENU INSIDE LAB */
+
+.labMenu {
+    position: absolute;
+    left: 40px;
+    top: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.labMenu button {
+    width: 200px;
+    text-align: left;
+}
+
+/* ===== MODAL ===== */
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.95);
+    padding: 60px;
     overflow-y: auto;
-    padding: 60px 40px;
-    animation: fadeIn 0.4s ease;
 }
 
 .close {
@@ -128,53 +144,29 @@ button:hover {
     left: 20px;
     font-size: 24px;
     cursor: pointer;
-    z-index: 30;
 }
 
-/* ===== PROJECTS ===== */
+/* PROJECT */
 
 .project {
     display: flex;
     margin-bottom: 40px;
     align-items: center;
-    animation: fadeIn 0.6s ease;
 }
 
 .project img {
     width: 260px;
     margin-right: 20px;
-    transition: 0.3s;
 }
 
-.project img:hover {
-    transform: scale(1.05);
-}
-
-video {
-    max-width: 500px;
-    margin-top: 20px;
-}
-
-/* ===== GALLERY ===== */
-
-.gallery {
-    display: flex;
-    flex-wrap: wrap;
-    margin-top: 30px;
-}
+/* GALLERY */
 
 .gallery img {
     width: 200px;
     margin: 10px;
-    transition: 0.3s;
 }
 
-.gallery img:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 20px rgba(255,255,255,0.4);
-}
-
-/* ===== CONTACT MODAL ===== */
+/* CONTACT */
 
 .contactModal {
     display: none;
@@ -183,7 +175,6 @@ video {
     background: rgba(0,0,0,0.9);
     justify-content: center;
     align-items: center;
-    animation: fadeIn 0.3s ease;
 }
 
 .contactBox {
@@ -191,24 +182,6 @@ video {
     padding: 40px;
     text-align: center;
     background: black;
-    animation: pop 0.3s ease;
-}
-
-/* ===== ANIMATIONS ===== */
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes slideUp {
-    from { transform: translateY(40px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes pop {
-    from { transform: scale(0.8); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
 }
 
 </style>
@@ -216,10 +189,8 @@ video {
 
 <body>
 
-<!-- TOP LEFT -->
 <div class="badge">~/pepc84</div>
 
-<!-- TOP RIGHT -->
 <div class="actions">
     <a href="files/Resume.pdf" target="_blank">
         <button>Resume</button>
@@ -227,7 +198,6 @@ video {
     <button onclick="openContact()">Contact</button>
 </div>
 
-<!-- NAME -->
 <div class="identity">
     <div class="name">Jose Llamas</div>
     <div class="sub">Sophomore @ UC Berkeley EECS</div>
@@ -236,106 +206,77 @@ video {
 <!-- HOME -->
 <div id="home">
 
-    <!-- EE -->
-    <div class="panel" onclick="openPage('lab')">
+    <div class="panel" onclick="openLab()">
         <img src="files/lab.jpg">
-        <div class="overlay">
-            <div class="title">EE</div>
-            <div class="subtitle">Hardware + Circuits</div>
-        </div>
+        <div class="overlay">EE Lab</div>
     </div>
 
-    <!-- CS (IDE) -->
     <div class="panel" onclick="openPage('ide')">
         <img src="files/ProcessingGL_1.png">
-        <div class="overlay">
-            <div class="title">CS</div>
-            <div class="subtitle">Simple++ IDE</div>
-        </div>
+        <div class="overlay">Simple++ IDE</div>
     </div>
 
-    <!-- MATH -->
-    <div class="panel" onclick="openPage('games')">
-        <img src="files/violin_top.jpg">
-        <div class="overlay">
-            <div class="title">Math</div>
-            <div class="subtitle">Simulation + Games</div>
-        </div>
+    <div class="panel" onclick="openPage('math')">
+        <img src="files/bezier_1.png">
+        <div class="overlay">Math / Graphics</div>
     </div>
 
 </div>
 
-<!-- LAB PAGE -->
-<div id="lab" class="page">
-    <div class="close" onclick="closePage()">X</div>
+<!-- LAB SCENE -->
+<div id="labScene">
+    <img src="files/lab.jpg">
 
-    <h2>Electronics Lab</h2>
-
-    <div class="project">
-        <img src="files/bldc_controller.jpg">
-        <div>Custom BLDC motor and controller</div>
+    <div class="labMenu">
+        <button onclick="openProject('bldc')">BLDC Motor</button>
+        <button onclick="openProject('scope')">Oscilloscope</button>
+        <button onclick="openProject('violin')">Violin Project</button>
     </div>
 
-    <div class="project">
+    <div class="close" onclick="closeLab()">X</div>
+</div>
+
+<!-- PROJECT MODAL -->
+<div id="modal" class="modal">
+    <div class="close" onclick="closeModal()">X</div>
+
+    <div id="bldc" class="content">
+        <div class="project">
+            <img src="files/bldc_controller.jpg">
+            <div>Custom BLDC motor + ESC design</div>
+        </div>
         <img src="files/bldc_magnets.jpg">
-        <div>Magnet layout and torque design</div>
     </div>
 
-    <video controls>
-        <source src="files/oscilloscope.mp4">
-    </video>
-
-    <div class="gallery">
-        <img src="files/lab.jpg">
-        <img src="files/bldc_controller.jpg">
-        <img src="files/bldc_magnets.jpg">
+    <div id="scope" class="content" style="display:none;">
+        <video controls>
+            <source src="files/oscilloscope.mp4">
+        </video>
     </div>
+
+    <div id="violin" class="content" style="display:none;">
+        <img src="files/violin_top.jpg">
+        <img src="files/violin_side.jpg">
+    </div>
+
 </div>
 
 <!-- IDE PAGE -->
-<div id="ide" class="page">
-    <div class="close" onclick="closePage()">X</div>
-
+<div id="ide" class="modal">
+    <div class="close" onclick="closeModal()">X</div>
     <h2>Simple++ IDE</h2>
-
-    <div style="margin-bottom:40px;">
-        <img src="files/ProcessingGL_1.png" style="
-            width:100%;
-            max-width:900px;
-            display:block;
-            margin:auto;
-            border:1px solid white;
-            transition:0.4s;
-        " onmouseover="this.style.transform='scale(1.02)'" 
-           onmouseout="this.style.transform='scale(1)'">
-    </div>
-
-    <div class="project">
-        <div>
-            Simple++ is a custom lightweight IDE designed for fast C/C++ workflows.  
-            Built for performance, minimalism, and real-time graphics integration.  
-        </div>
-    </div>
-
-    <div class="gallery">
-        <img src="files/ProcessingGL_1.png">
-    </div>
+    <img src="files/ProcessingGL_1.png" style="width:80%;">
 </div>
 
-<!-- GAMES PAGE -->
-<div id="games" class="page">
-    <div class="close" onclick="closePage()">X</div>
+<!-- MATH PAGE -->
+<div id="math" class="modal">
+    <div class="close" onclick="closeModal()">X</div>
 
-    <h2>Projects / Simulation</h2>
+    <h2>Math + Graphics</h2>
 
-    <div class="project">
-        <img src="files/violin_top.jpg">
-        <div>Physics experiments</div>
-    </div>
-
-    <div class="project">
-        <img src="files/violin_side.jpg">
-    </div>
+    <img src="files/bezier_1.png">
+    <img src="files/stats_1.png">
+    <img src="files/stats_2.png">
 </div>
 
 <!-- CONTACT -->
@@ -351,12 +292,26 @@ video {
 </div>
 
 <script>
-function openPage(id) {
-    document.getElementById(id).style.display = "block";
+function openLab() {
+    document.getElementById("labScene").style.display = "block";
 }
 
-function closePage() {
-    document.querySelectorAll(".page").forEach(p => p.style.display = "none");
+function closeLab() {
+    document.getElementById("labScene").style.display = "none";
+}
+
+function openProject(name) {
+    document.getElementById("modal").style.display = "block";
+    document.querySelectorAll(".content").forEach(c => c.style.display="none");
+    document.getElementById(name).style.display = "block";
+}
+
+function closeModal() {
+    document.querySelectorAll(".modal").forEach(m => m.style.display="none");
+}
+
+function openPage(id) {
+    document.getElementById(id).style.display = "block";
 }
 
 function openContact() {
