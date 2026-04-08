@@ -7,319 +7,277 @@
 <style>
 body {
     margin: 0;
-    font-family: monospace;
+    font-family: Arial;
     background: black;
     color: white;
     overflow: hidden;
 }
 
-/* ===== TOP UI ===== */
-
-.badge {
+/* NAVBAR */
+#nav {
     position: fixed;
-    top: 20px;
-    left: 20px;
-    border: 1px solid white;
-    padding: 10px 14px;
-    z-index: 20;
-}
-
-.actions {
-    position: fixed;
-    top: 20px;
-    right: 20px;
+    width: 100%;
     display: flex;
-    gap: 10px;
-    z-index: 20;
+    justify-content: space-between;
+    padding: 15px 25px;
+    background: rgba(0,0,0,0.85);
+    z-index: 100;
 }
 
-button {
-    background: transparent;
-    border: 1px solid white;
-    color: white;
-    padding: 8px 14px;
+.square {
+    border: 2px solid white;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.square:hover {
+    background: white;
+    color: black;
+}
+
+/* PAGES */
+.page {
+    width: 100vw;
+    height: 100vh;
+    display: none;
+}
+.active {
+    display: flex;
+}
+
+/* HOME */
+#home {
+    display: flex;
+}
+
+.section {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
     cursor: pointer;
 }
 
+.section img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.5;
+    transition: 0.4s;
+}
+.section:hover img {
+    opacity: 0.8;
+    transform: scale(1.05);
+}
+
+.label {
+    position: absolute;
+    bottom: 40px;
+    left: 40px;
+    font-size: 40px;
+}
+
+/* LAB / PROJECTS */
+#lab {
+    padding: 100px 60px;
+    overflow-y: auto;
+    display: block;
+}
+
+.project {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 60px;
+    align-items: center;
+}
+
+.project img {
+    width: 300px;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+.project img:hover {
+    transform: scale(1.05);
+}
+
+.project-info {
+    max-width: 500px;
+}
+
+button {
+    margin-top: 10px;
+    padding: 10px;
+    background: black;
+    color: white;
+    border: 2px solid white;
+    cursor: pointer;
+}
 button:hover {
     background: white;
     color: black;
 }
 
-/* ===== IDENTITY ===== */
+.details {
+    max-height: 0;
+    overflow: hidden;
+    transition: 0.4s;
+}
+.details.open {
+    max-height: 500px;
+}
 
-.identity {
+/* CONTACT POPUP */
+#contactBox {
     position: fixed;
-    bottom: 30px;
-    left: 30px;
-    z-index: 20;
-}
-
-.identity .name {
-    font-size: clamp(24px, 4vw, 48px);
-}
-
-.identity .sub {
-    font-size: clamp(14px, 2vw, 20px);
-    opacity: 0.7;
-}
-
-/* ===== HOME ===== */
-
-#home {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    height: 100vh;
-}
-
-.panel {
-    position: relative;
-    cursor: pointer;
-}
-
-.panel img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: brightness(0.5);
-    transition: 0.5s;
-}
-
-.panel:hover img {
-    transform: scale(1.08);
-    filter: brightness(0.8);
-}
-
-.overlay {
-    position: absolute;
-    bottom: 30px;
-    left: 30px;
-}
-
-/* ===== LAB SCENE ===== */
-
-#labScene {
-    display: none;
-    position: fixed;
-    inset: 0;
-}
-
-#labScene img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: brightness(0.6);
-}
-
-/* MENU INSIDE LAB */
-
-.labMenu {
-    position: absolute;
-    left: 40px;
-    top: 120px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.labMenu button {
-    width: 200px;
-    text-align: left;
-}
-
-/* ===== MODAL ===== */
-
-.modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.95);
-    padding: 60px;
-    overflow-y: auto;
-}
-
-.close {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    font-size: 24px;
-    cursor: pointer;
-}
-
-/* PROJECT */
-
-.project {
-    display: flex;
-    margin-bottom: 40px;
-    align-items: center;
-}
-
-.project img {
-    width: 260px;
-    margin-right: 20px;
-}
-
-/* GALLERY */
-
-.gallery img {
-    width: 200px;
-    margin: 10px;
-}
-
-/* CONTACT */
-
-.contactModal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.9);
-    justify-content: center;
-    align-items: center;
-}
-
-.contactBox {
-    border: 1px solid white;
-    padding: 40px;
-    text-align: center;
+    top: 80px;
+    right: 25px;
     background: black;
+    border: 2px solid white;
+    padding: 15px;
+    display: none;
 }
-
 </style>
 </head>
 
 <body>
 
-<div class="badge">~/pepc84</div>
+<!-- NAV -->
+<div id="nav">
+    <div class="square" onclick="showPage('home')">~/pepc84</div>
 
-<div class="actions">
-    <a href="files/Resume.pdf" target="_blank">
-        <button>Resume</button>
-    </a>
-    <button onclick="openContact()">Contact</button>
-</div>
-
-<div class="identity">
-    <div class="name">Jose Llamas</div>
-    <div class="sub">Sophomore @ UC Berkeley EECS</div>
-</div>
-
-<!-- HOME -->
-<div id="home">
-
-    <div class="panel" onclick="openLab()">
-        <img src="files/lab.jpg">
-        <div class="overlay">EE Lab</div>
+    <div style="display:flex; gap:10px;">
+        <a href="files/Resume.pdf" target="_blank" class="square">Resume</a>
+        <div class="square" onclick="toggleContact()">Contact</div>
+        <a href="https://github.com/PepC84" target="_blank" class="square">GitHub</a>
     </div>
-
-    <div class="panel" onclick="openPage('ide')">
-        <img src="files/ProcessingGL_1.png">
-        <div class="overlay">Simple++ IDE</div>
-    </div>
-
-    <div class="panel" onclick="openPage('math')">
-        <img src="files/bezier_1.png">
-        <div class="overlay">Math / Graphics</div>
-    </div>
-
-</div>
-
-<!-- LAB SCENE -->
-<div id="labScene">
-    <img src="files/lab.jpg">
-
-    <div class="labMenu">
-        <button onclick="openProject('bldc')">BLDC Motor</button>
-        <button onclick="openProject('scope')">Oscilloscope</button>
-        <button onclick="openProject('violin')">Violin Project</button>
-    </div>
-
-    <div class="close" onclick="closeLab()">X</div>
-</div>
-
-<!-- PROJECT MODAL -->
-<div id="modal" class="modal">
-    <div class="close" onclick="closeModal()">X</div>
-
-    <div id="bldc" class="content">
-        <div class="project">
-            <img src="files/bldc_controller.jpg">
-            <div>Custom BLDC motor + ESC design</div>
-        </div>
-        <img src="files/bldc_magnets.jpg">
-    </div>
-
-    <div id="scope" class="content" style="display:none;">
-        <video controls>
-            <source src="files/oscilloscope.mp4">
-        </video>
-    </div>
-
-    <div id="violin" class="content" style="display:none;">
-        <img src="files/violin_top.jpg">
-        <img src="files/violin_side.jpg">
-    </div>
-
-</div>
-
-<!-- IDE PAGE -->
-<div id="ide" class="modal">
-    <div class="close" onclick="closeModal()">X</div>
-    <h2>Simple++ IDE</h2>
-    <img src="files/ProcessingGL_1.png" style="width:80%;">
-</div>
-
-<!-- MATH PAGE -->
-<div id="math" class="modal">
-    <div class="close" onclick="closeModal()">X</div>
-
-    <h2>Math + Graphics</h2>
-
-    <img src="files/bezier_1.png">
-    <img src="files/stats_1.png">
-    <img src="files/stats_2.png">
 </div>
 
 <!-- CONTACT -->
-<div id="contact" class="contactModal">
-    <div class="contactBox">
-        <div class="close" onclick="closeContact()">X</div>
-        <h2>Jose Llamas</h2>
-        <p>j.llamas@berkeley.edu</p>
-        <a href="mailto:j.llamas@berkeley.edu">
-            <button>Email Me</button>
-        </a>
+<div id="contactBox">
+    Jose Llamas<br>
+    j.llamas@berkeley.edu<br>
+    <a href="mailto:j.llamas@berkeley.edu" style="color:white;">Send Email</a>
+</div>
+
+<!-- HOME -->
+<div id="home" class="page active">
+    <div class="section" onclick="showPage('lab')">
+        <img src="files/lab.jpg">
+        <div class="label">EE</div>
+    </div>
+
+    <div class="section" onclick="showPage('lab')">
+        <img src="files/ProcessingGL_1.png">
+        <div class="label">CS</div>
+    </div>
+
+    <div class="section" onclick="showPage('lab')">
+        <img src="files/stats_1.png">
+        <div class="label">Math</div>
     </div>
 </div>
 
+<!-- LAB PAGE -->
+<div id="lab" class="page">
+
+    <!-- ProcessingGL -->
+    <div class="project">
+        <img src="files/ProcessingGL_1.png">
+
+        <div class="project-info">
+            <h2>Simple++ / ProcessingGL</h2>
+            <p>
+            C++ creative coding framework built on OpenGL with a custom IDE.
+            Recreates Processing’s workflow with GPU acceleration.
+            </p>
+
+            <a href="https://github.com/PepC84/ProcessingGL" target="_blank">
+                <button>View Repo</button>
+            </a>
+
+            <button onclick="toggleDetails('p1')">Details</button>
+
+            <div id="p1" class="details">
+                <ul>
+                    <li>OpenGL rendering engine (GLFW + GLEW)</li>
+                    <li>Custom IDE + build system</li>
+                    <li>PVector math system</li>
+                    <li>Color engine (HSB + blending)</li>
+                    <li>Image + framebuffer system</li>
+                    <li>Event system (keyboard/mouse)</li>
+                    <li>Processing-style API</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- BLDC -->
+    <div class="project">
+        <img src="files/bldc_magnets.jpg">
+        <img src="files/bldc_controller.jpg">
+
+        <div class="project-info">
+            <h2>BLDC Motor + Controller</h2>
+            <p>
+            Custom 3-phase brushless motor with hall sensors and MOSFET driver circuit.
+            Designed for 12–24V operation with full analog control.
+            </p>
+        </div>
+    </div>
+
+    <!-- Bezier -->
+    <div class="project">
+        <img src="files/bezier_1.png">
+
+        <div class="project-info">
+            <h2>Bezier Engine</h2>
+            <p>
+            High resolution Bezier curve renderer with LUT optimization
+            for constant speed traversal.
+            </p>
+        </div>
+    </div>
+
+    <!-- Violin -->
+    <div class="project">
+        <img src="files/violin_top.jpg">
+        <img src="files/violin_side.jpg">
+
+        <div class="project-info">
+            <h2>Violin Build</h2>
+            <p>
+            Hand-crafted violin focusing on acoustic shaping and resonance control.
+            </p>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="project">
+        <img src="files/stats_1.png">
+        <img src="files/stats_2.png">
+
+        <div class="project-info">
+            <h2>Statistical Modeling</h2>
+            <p>
+            Data visualization and statistical analysis projects.
+            </p>
+        </div>
+    </div>
+
+</div>
+
 <script>
-function openLab() {
-    document.getElementById("labScene").style.display = "block";
+function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
 }
 
-function closeLab() {
-    document.getElementById("labScene").style.display = "none";
+function toggleDetails(id) {
+    document.getElementById(id).classList.toggle('open');
 }
 
-function openProject(name) {
-    document.getElementById("modal").style.display = "block";
-    document.querySelectorAll(".content").forEach(c => c.style.display="none");
-    document.getElementById(name).style.display = "block";
-}
-
-function closeModal() {
-    document.querySelectorAll(".modal").forEach(m => m.style.display="none");
-}
-
-function openPage(id) {
-    document.getElementById(id).style.display = "block";
-}
-
-function openContact() {
-    document.getElementById("contact").style.display = "flex";
-}
-
-function closeContact() {
-    document.getElementById("contact").style.display = "none";
+function toggleContact() {
+    const box = document.getElementById('contactBox');
+    box.style.display = box.style.display === 'block' ? 'none' : 'block';
 }
 </script>
 
