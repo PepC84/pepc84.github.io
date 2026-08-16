@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects — pep Llamas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav id="site-nav"></nav>
+
+<div class="page-hero">
+  <p class="section-label">Work</p>
+  <h1>Projects</h1>
+  <p>Things I've built — open-source tools, hardware experiments, and graphics work.</p>
+</div>
+
+<div class="section">
+  <h2>Software</h2>
+  <div class="cards-grid">
+
+    <a class="project-card" href="https://processing-cpp.github.io" target="_blank" rel="noopener">
+      <div class="project-thumb">⚙️</div>
+      <div class="project-info">
+        <div class="project-card-title">Processing for C++</div>
+        <div class="project-card-desc">
+          A C++ mode for the Processing IDE. Write sketches in Processing syntax,
+          compile to native C++ under the hood. Includes an online editor backed
+          by a compiler running on Cloudflare Tunnel.
+        </div>
+        <span class="tag">C++</span>
+        <span class="tag">WebAssembly</span>
+        <span class="tag">Processing</span>
+        <span class="tag">Cloudflare</span>
+      </div>
+    </a>
+
+    <a class="project-card" href="https://github.com/pepc84" target="_blank" rel="noopener">
+      <div class="project-thumb">🌳</div>
+      <div class="project-info">
+        <div class="project-card-title">java-tree-sitter bindings</div>
+        <div class="project-card-desc">
+          Java bindings for the tree-sitter incremental parsing library,
+          enabling fast, accurate syntax highlighting and code analysis in JVM projects.
+        </div>
+        <span class="tag">Java</span>
+        <span class="tag">tree-sitter</span>
+        <span class="tag">parsing</span>
+      </div>
+    </a>
+
+    <a class="project-card" href="https://github.com/pepc84" target="_blank" rel="noopener">
+      <div class="project-thumb">🎨</div>
+      <div class="project-info">
+        <div class="project-card-title">libprocessing</div>
+        <div class="project-card-desc">
+          A C++ library that implements the Processing drawing API natively,
+          letting you use familiar sketch APIs in any C++ project.
+        </div>
+        <span class="tag">C++</span>
+        <span class="tag">OpenGL</span>
+        <span class="tag">Graphics</span>
+      </div>
+    </a>
+
+    <a class="project-card" href="https://github.com/pepc84" target="_blank" rel="noopener">
+      <div class="project-thumb">🔌</div>
+      <div class="project-info">
+        <div class="project-card-title">remote-hid</div>
+        <div class="project-card-desc">
+          Remote HID device emulation — control a computer's keyboard and mouse
+          over a network connection using an ESP32 as the endpoint.
+        </div>
+        <span class="tag">ESP32</span>
+        <span class="tag">HID</span>
+        <span class="tag">C++</span>
+      </div>
+    </a>
+
+    <div class="project-card" style="cursor:default;">
+      <div class="project-thumb" style="font-size:1.5rem;color:#ccc;">More coming</div>
+      <div class="project-info">
+        <div class="project-card-title">More projects</div>
+        <div class="project-card-desc">
+          Oscilloscope visualizer in Processing, gcc-processing compiler pipeline,
+          and other experiments. Check GitHub for the full list.
+        </div>
+        <a class="tag" href="https://github.com/pepc84" target="_blank" style="color:#003f6b;border-color:#003f6b;">
+          github.com/pepc84 →
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section">
+  <h2>Hardware</h2>
+  <div class="cards-grid">
+
+    <div class="project-card" style="cursor:default;">
+      <div class="project-thumb">📡</div>
+      <div class="project-info">
+        <div class="project-card-title">ESP32 projects</div>
+        <div class="project-card-desc">
+          Wireless HID emulation, sensor logging, and custom firmware.
+          Built with Zephyr RTOS and the ESP-IDF toolchain.
+        </div>
+        <span class="tag">ESP32</span>
+        <span class="tag">Zephyr</span>
+        <span class="tag">C</span>
+      </div>
+    </div>
+
+    <div class="project-card" style="cursor:default;">
+      <div class="project-thumb">🔬</div>
+      <div class="project-info">
+        <div class="project-card-title">Oscilloscope visualizer</div>
+        <div class="project-card-desc">
+          Real-time oscilloscope data visualization using Processing,
+          reading serial data from a custom ADC circuit.
+        </div>
+        <span class="tag">Processing</span>
+        <span class="tag">Hardware</span>
+        <span class="tag">KiCad</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <p>pep Llamas — <a href="mailto:j.llamas@berkeley.edu">j.llamas@berkeley.edu</a></p>
+</footer>
+
+<script src="nav.js"></script>
+</body>
+</html>
