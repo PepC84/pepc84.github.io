@@ -52,7 +52,7 @@
     .contact-box .btn-yellow{width:100%;text-align:center;cursor:pointer;border:none;font-family:inherit;font-size:0.9rem;}
     .contact-status{margin-top:0.75rem;font-size:0.85rem;text-align:center;min-height:1.2em;}
     .nav-contact-btn{background:#e8b400;color:#111;border:none;border-radius:7px;padding:0.35rem 0.85rem;font-family:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;}
-    .nav-contact-btn:hover{background:#d4a400;}
+    .nav-contact-btn:hover{background:#d4a400;} @media(max-width:600px){.nav-logo{display:none;}}
   `;
   document.head.appendChild(s);
   document.getElementById('nav-contact-btn').addEventListener('click',()=>modal.classList.add('open'));
