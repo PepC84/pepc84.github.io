@@ -1,5 +1,6 @@
 (function () {
   const path = location.pathname.replace(/\/$/, '') || '/index.html';
+  const isHome=path.endsWith('index.html')||path==='', isCV=path.endsWith('cv.html');
   const nav = document.getElementById('site-nav');
   if (!nav) return;
   nav.innerHTML = `
@@ -23,12 +24,12 @@
   modal.innerHTML = `
     <div class="contact-overlay" id="contact-overlay"></div>
     <div class="contact-box">
-      <button class="contact-close" id="contact-close">✕</button>
+      <button class="contact-close" id="contact-close">&#x2715;</button>
       <h2>Get in touch</h2>
       <p class="contact-sub">I'll get back to you at hello@pepc84.com</p>
       <form id="contact-form">
         <input name="name" type="text" placeholder="Your name" required />
-        <input name="email" type="email" placeholder="Your email" required />
+        <input name="email" type="email" placeholder="Your email (optional)" />
         <textarea name="message" rows="5" placeholder="Message" required></textarea>
         <button type="submit" class="btn-yellow" id="contact-submit">Send</button>
         <p class="contact-status" id="contact-status"></p>
@@ -36,39 +37,36 @@
     </div>
   `;
   document.body.appendChild(modal);
-  if (!document.getElementById('contact-modal-styles')) {
-    const s = document.createElement('style');
-    s.id = 'contact-modal-styles';
-    s.textContent = `
-      #contact-modal{display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;}
-      #contact-modal.open{display:flex;}
-      .contact-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.35);backdrop-filter:blur(2px);}
-      .contact-box{position:relative;background:#fff;border-radius:14px;padding:2rem 2.5rem;width:min(480px,90vw);box-shadow:0 8px 40px rgba(0,0,0,0.15);z-index:1;}
-      .contact-box h2{margin:0 0 0.25rem;font-size:1.4rem;}
-      .contact-sub{margin:0 0 1.25rem;color:#777;font-size:0.88rem;}
-      .contact-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.1rem;cursor:pointer;color:#999;}
-      .contact-close:hover{color:#333;}
-      .contact-box input,.contact-box textarea{display:block;width:100%;box-sizing:border-box;margin-bottom:0.75rem;padding:0.6rem 0.85rem;border:1px solid #e0e0e0;border-radius:8px;font-family:inherit;font-size:0.9rem;resize:vertical;}
-      .contact-box input:focus,.contact-box textarea:focus{outline:none;border-color:#e8b400;}
-      .contact-box .btn-yellow{width:100%;text-align:center;cursor:pointer;border:none;font-family:inherit;font-size:0.9rem;}
-      .contact-status{margin-top:0.75rem;font-size:0.85rem;text-align:center;min-height:1.2em;}
-      .nav-contact-btn{background:#e8b400;color:#111;border:none;border-radius:7px;padding:0.35rem 0.85rem;font-family:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;}
-      .nav-contact-btn:hover{background:#d4a400;}
-    `;
-    document.head.appendChild(s);
-  }
+  const s = document.createElement('style');
+  s.textContent = `
+    #contact-modal{display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;}
+    #contact-modal.open{display:flex;}
+    .contact-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.35);backdrop-filter:blur(2px);}
+    .contact-box{position:relative;background:#fff;border-radius:14px;padding:2rem 2.5rem;width:min(480px,90vw);box-shadow:0 8px 40px rgba(0,0,0,0.15);z-index:1;}
+    .contact-box h2{margin:0 0 0.25rem;font-size:1.4rem;}
+    .contact-sub{margin:0 0 1.25rem;color:#777;font-size:0.88rem;}
+    .contact-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.1rem;cursor:pointer;color:#999;}
+    .contact-close:hover{color:#333;}
+    .contact-box input,.contact-box textarea{display:block;width:100%;box-sizing:border-box;margin-bottom:0.75rem;padding:0.6rem 0.85rem;border:1px solid #e0e0e0;border-radius:8px;font-family:inherit;font-size:0.9rem;resize:vertical;}
+    .contact-box input:focus,.contact-box textarea:focus{outline:none;border-color:#e8b400;}
+    .contact-box .btn-yellow{width:100%;text-align:center;cursor:pointer;border:none;font-family:inherit;font-size:0.9rem;}
+    .contact-status{margin-top:0.75rem;font-size:0.85rem;text-align:center;min-height:1.2em;}
+    .nav-contact-btn{background:#e8b400;color:#111;border:none;border-radius:7px;padding:0.35rem 0.85rem;font-family:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;}
+    .nav-contact-btn:hover{background:#d4a400;}
+  `;
+  document.head.appendChild(s);
   document.getElementById('nav-contact-btn').addEventListener('click',()=>modal.classList.add('open'));
   document.getElementById('contact-close').addEventListener('click',()=>modal.classList.remove('open'));
   document.getElementById('contact-overlay').addEventListener('click',()=>modal.classList.remove('open'));
   document.getElementById('contact-form').addEventListener('submit',async(e)=>{
     e.preventDefault();
     const btn=document.getElementById('contact-submit'),status=document.getElementById('contact-status'),data=new FormData(e.target);
-    btn.disabled=true; btn.textContent='Sending…';
+    btn.disabled=true;btn.textContent='Sending...';
     try {
       const res=await fetch('https://formspree.io/f/YOUR_FORM_ID',{method:'POST',body:data,headers:{Accept:'application/json'}});
-      if(res.ok){status.textContent="Message sent! I'll get back to you soon.";status.style.color='#2a7a2a';e.target.reset();}
+      if(res.ok){status.textContent="Sent! I'll get back to you soon.";status.style.color='#2a7a2a';e.target.reset();}
       else throw new Error();
-    } catch { status.textContent='Something went wrong — email me at hello@pepc84.com'; status.style.color='#c00'; }
-    btn.disabled=false; btn.textContent='Send';
+    } catch{status.textContent='Something went wrong. Email me at hello@pepc84.com';status.style.color='#c00';}
+    btn.disabled=false;btn.textContent='Send';
   });
 })();
