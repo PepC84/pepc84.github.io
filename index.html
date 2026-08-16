@@ -11,123 +11,49 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
 </head>
 <body>
-
 <nav id="site-nav"></nav>
-
-<!-- Hero -->
 <div class="hero">
   <div class="hero-left">
     <p class="section-label">Hi, I'm</p>
-    <h1>
-      <span class="blue">Jose</span> Llamas.
-    </h1>
+    <h1><span class="blue">Jose</span> Llamas.</h1>
     <p>
-      EECS student at UC Berkeley. I work across graphics, embedded systems,
-      and software — from C++ graphics frameworks to custom motors and
-      interactive instruments. Currently working on <a href="/projects.html" style="color:#111;font-weight:600;border-bottom:1px solid #111;">Processing for C++</a>.
+      EECS student at UC Berkeley. Head of <a href="https://processing-cpp.github.io" target="_blank" style="color:#111;font-weight:600;border-bottom:1px solid #111;">Processing for C++</a>,
+      a graphics framework used by students worldwide. I also work on embedded systems, custom motors, and interactive instruments.
     </p>
     <div class="hero-actions">
       <a class="btn-yellow" href="/projects.html">Projects</a>
       <a class="btn-blue"   href="/cv.html">CV</a>
-      <a class="hero-link"  href="mailto:j.llamas@berkeley.edu">Get in touch</a>
+      <a class="hero-link"  href="mailto:hello@pepc84.com">Get in touch</a>
     </div>
   </div>
-
-  <div class="hero-right">
-    <canvas id="sketch"></canvas>
-  </div>
-
+  <div class="hero-right"><canvas id="sketch"></canvas></div>
   <div class="scroll-hint">↓</div>
 </div>
-
-<!-- About -->
 <div class="section">
   <p class="section-label">About</p>
   <h2>A bit about me</h2>
   <p style="font-size:0.95rem;color:#555;line-height:1.8;max-width:600px;margin-bottom:1.5rem;">
     From San Diego, CA. Sophomore studying EECS at UC Berkeley (B.S. expected Fall 2029).
-    I work across the stack — C++ graphics frameworks, embedded motor control, PCB design,
+    I work across the stack: C++ graphics frameworks, embedded motor control, PCB design,
     and multiplayer game systems. Outside of engineering I play violin and have been tutoring
     calculus for three years.
   </p>
   <div class="cards-grid" style="margin-top:1.5rem;">
-    <div class="card" style="cursor:default;">
-      <h3>Languages</h3>
-      <p>C, C++, Python, Java, Lua, Bash, SQL</p>
-    </div>
-    <div class="card" style="cursor:default;">
-      <h3>Hardware &amp; embedded</h3>
-      <p>PCB design, motor control, KiCad, LTspice, oscilloscope, I2C/SPI/UART</p>
-    </div>
-    <div class="card" style="cursor:default;">
-      <h3>Systems &amp; graphics</h3>
-      <p>OpenGL, Processing, Linux (Arch/Debian/RHEL), Git, Fusion 360</p>
-    </div>
+    <div class="card" style="cursor:default;"><h3>Languages</h3><p>C, C++, Python, Java, Lua, Bash, SQL</p></div>
+    <div class="card" style="cursor:default;"><h3>Hardware &amp; embedded</h3><p>PCB design, motor control, KiCad, LTspice, oscilloscope, I2C/SPI/UART</p></div>
+    <div class="card" style="cursor:default;"><h3>Systems &amp; graphics</h3><p>OpenGL, Processing, Linux (Arch/Debian/RHEL), Git, Fusion 360</p></div>
   </div>
 </div>
-
-<!-- Featured projects -->
-<div class="section">
-  <p class="section-label">Work</p>
-  <h2>Featured projects</h2>
-  <div class="cards-grid">
-    <a class="card" href="https://processing-cpp.github.io" target="_blank" rel="noopener">
-      <h3>Processing for C++</h3>
-      <p>A C++ mode for the Processing IDE that compiles sketches to native C++ with a full online editor and compiler backend.</p>
-      <div>
-        <span class="tag">C++</span>
-        <span class="tag">WebAssembly</span>
-        <span class="tag">Processing</span>
-      </div>
-      <span class="card-link" style="margin-top:0.75rem;display:inline-block;">View project →</span>
-    </a>
-    <a class="card" href="/projects.html">
-      <h3>See all projects</h3>
-      <p>Electronics, graphics experiments, open-source tools, and more.</p>
-      <span class="card-link" style="margin-top:0.75rem;display:inline-block;">Go to projects →</span>
-    </a>
-  </div>
-</div>
-
-<footer>
-  <p>pep Llamas — <a href="mailto:j.llamas@berkeley.edu">j.llamas@berkeley.edu</a></p>
-</footer>
-
+<footer><p>Jose Llamas — <a href="mailto:hello@pepc84.com">hello@pepc84.com</a></p></footer>
 <script src="nav.js"></script>
-
-<!-- p5 sketch: generative geometric pattern -->
 <script>
 new p5(function(p) {
   let t = 0;
-  p.setup = function() {
-    const c = p.createCanvas(320, 380);
-    c.parent('sketch');
-    p.colorMode(p.HSB, 360, 100, 100, 100);
-    p.strokeWeight(1.5);
-    p.noFill();
-  };
+  p.setup = function() { const c = p.createCanvas(320,380); c.parent('sketch'); p.colorMode(p.HSB,360,100,100,100); p.strokeWeight(1.5); p.noFill(); };
   p.draw = function() {
-    p.background(0, 0, 100, 18);
-    p.translate(p.width / 2, p.height / 2);
-    for (let i = 0; i < 6; i++) {
-      let angle = (p.TWO_PI / 6) * i + t;
-      let x = p.cos(angle) * 80;
-      let y = p.sin(angle) * 80;
-      let hue = (i * 60 + t * 30) % 360;
-      p.stroke(hue, 60, 80, 80);
-      p.push();
-      p.translate(x, y);
-      p.rotate(angle + t);
-      p.rect(-20, -20, 40, 40, 6);
-      p.pop();
-    }
-    // center shape
-    p.stroke(45, 90, 90, 90); // yellow
-    p.push();
-    p.rotate(t * 0.7);
-    p.rect(-28, -28, 56, 56, 10);
-    p.pop();
-    t += 0.012;
+    p.background(0,0,100,18); p.translate(p.width/2,p.height/2);
+    for (let i=0;i<6;i++) { let angle=(p.TWO_PI/6)*i+t,x=p.cos(angle)*80,y=p.sin(angle)*80,hue=(i*60+t*30)%360; p.stroke(hue,60,80,80); p.push(); p.translate(x,y); p.rotate(angle+t); p.rect(-20,-20,40,40,6); p.pop(); }
+    p.stroke(45,90,90,90); p.push(); p.rotate(t*0.7); p.rect(-28,-28,56,56,10); p.pop(); t+=0.012;
   };
 });
 </script>
