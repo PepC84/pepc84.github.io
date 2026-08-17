@@ -63,7 +63,7 @@
     const btn=document.getElementById('contact-submit'),status=document.getElementById('contact-status'),data=new FormData(e.target);
     btn.disabled=true;btn.textContent='Sending...';
     try {
-      const res=await fetch('https://formspree.io/f/YOUR_FORM_ID',{method:'POST',body:data,headers:{Accept:'application/json'}});
+      const res=await fetch('https://formspree.io/f/mjybakod',{method:'POST',body:data,headers:{Accept:'application/json'}});
       if(res.ok){status.textContent="Sent! I'll get back to you soon.";status.style.color='#2a7a2a';e.target.reset();}
       else throw new Error();
     } catch{status.textContent='Something went wrong. Email me at hello@pepc84.com';status.style.color='#c00';}
