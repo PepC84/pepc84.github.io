@@ -2,134 +2,504 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jose Llamas</title>
-  <meta name="description" content="Personal site of Jose Llamas — EECS student at UC Berkeley.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>PC Control — pepc84</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap">
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%; overflow: hidden;
+      font-family: 'Space Grotesk', sans-serif;
+      background: #f5f5f3; color: #111;
+      touch-action: none; user-select: none; -webkit-user-select: none;
+    }
+
+    /* ── Login ── */
+    #login-screen {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100%; gap: 1rem; padding: 2rem;
+    }
+    #login-screen h1 { font-size: 1.5rem; }
+    #login-screen input {
+      width: 100%; max-width: 320px; padding: 0.65rem 0.9rem;
+      border: 1px solid #ddd; border-radius: 8px;
+      font-family: inherit; font-size: 0.95rem;
+      touch-action: auto; user-select: auto; -webkit-user-select: auto;
+    }
+    #login-screen input:focus { outline: none; border-color: #e8b400; }
+    #login-btn {
+      width: 100%; max-width: 320px; background: #e8b400; color: #111;
+      border: none; border-radius: 8px; padding: 0.65rem;
+      font-family: inherit; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    }
+    #login-btn:active { background: #d4a400; }
+    #login-error { color: #c00; font-size: 0.85rem; min-height: 1.2em; }
+
+    /* ── Main ── */
+    #main-screen { display: none; flex-direction: column; height: 100%; }
+
+    .top-bar {
+      flex-shrink: 0; padding: 0.7rem 1rem 0.55rem;
+      display: flex; flex-direction: column; gap: 0.55rem;
+      background: #f5f5f3;
+    }
+    .title-row { display: flex; align-items: center; justify-content: space-between; }
+    .title-row h1 { font-size: 1.05rem; }
+    .title-actions { display: flex; align-items: center; gap: 0.6rem; }
+    .status-row { display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; color: #777; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; }
+    .dot.online  { background: #2a7a2a; }
+    .dot.offline { background: #c00; }
+
+    /* Camera toggle */
+    #cam-toggle {
+      background: none; border: 1px solid #ddd; border-radius: 7px;
+      padding: 0.3rem 0.55rem; font-size: 1rem; cursor: pointer; line-height: 1;
+    }
+    #cam-toggle.active { border-color: #e8b400; background: #fffbe6; }
+
+    .power-row { display: flex; align-items: center; gap: 1rem; }
+    #power-btn {
+      width: 52px; height: 52px; border-radius: 50%;
+      border: 2.5px solid #111; background: #fff;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background 0.12s, transform 0.08s;
+    }
+    #power-btn:active { transform: scale(0.91); background: #f0f0f0; }
+    #power-btn.holding { border-color: #c00; }
+    #power-btn svg { pointer-events: none; }
+    .power-hint { font-size: 0.7rem; color: #999; }
+
+    /* ── Trackpad ── */
+    #trackpad-zone {
+      flex: 1; position: relative; background: #ebe9e5;
+      border-top: 1px solid #d8d6d2; overflow: hidden;
+    }
+    .pad-hint {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.78rem; color: #bbb; pointer-events: none;
+    }
+    .ripple {
+      position: absolute; border-radius: 50%; width: 60px; height: 60px;
+      background: rgba(0,0,0,0.09);
+      transform: translate(-50%,-50%) scale(0);
+      animation: ripple 0.35s ease-out forwards; pointer-events: none;
+    }
+    @keyframes ripple { to { transform: translate(-50%,-50%) scale(2.5); opacity: 0; } }
+
+    /* ── Bottom ── */
+    .bottom-bar {
+      flex-shrink: 0; padding: 0.5rem 1rem 0.75rem;
+      background: #f5f5f3; border-top: 1px solid #e0e0e0;
+      display: flex; flex-direction: column; gap: 0.45rem;
+    }
+    .click-btns { display: flex; gap: 0.5rem; }
+    .click-btn {
+      flex: 1; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;
+      padding: 0.5rem; font-family: inherit; font-size: 0.82rem; font-weight: 500; cursor: pointer;
+    }
+    .click-btn:active { background: #e8b400; }
+
+    .type-row { display: flex; gap: 0.5rem; align-items: stretch; }
+    #type-input {
+      flex: 1; padding: 0.5rem 0.75rem; border: 1px solid #ddd; border-radius: 8px;
+      font-family: inherit; font-size: 0.88rem;
+      touch-action: auto; user-select: auto; -webkit-user-select: auto;
+    }
+    #type-input:focus { outline: none; border-color: #e8b400; }
+    #type-btn {
+      background: #e8b400; color: #111; border: none; border-radius: 8px;
+      padding: 0.5rem 0.9rem; font-family: inherit; font-weight: 600; cursor: pointer;
+      font-size: 0.88rem; white-space: nowrap; transition: background 0.15s;
+    }
+    #type-btn:active { background: #d4a400; }
+    #type-btn.ok  { background: #2a7a2a; color: #fff; }
+    #type-btn.err { background: #c00;    color: #fff; }
+
+    /* ── Webcam overlay ── */
+    #cam-panel {
+      display: none; position: fixed; inset: 0; z-index: 100;
+      background: #000; flex-direction: column;
+    }
+    #cam-panel.open { display: flex; }
+    #cam-video { flex: 1; width: 100%; object-fit: cover; }
+    .cam-bar {
+      display: flex; gap: 0.5rem; padding: 0.6rem 1rem;
+      background: rgba(0,0,0,0.7);
+    }
+    .cam-bar button {
+      flex: 1; background: rgba(255,255,255,0.15); color: #fff;
+      border: 1px solid rgba(255,255,255,0.25); border-radius: 8px;
+      padding: 0.5rem; font-family: inherit; font-size: 0.85rem; cursor: pointer;
+    }
+    .cam-bar button:active { background: rgba(255,255,255,0.3); }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,0.75); color: #fff;
+      padding: 0.35rem 1rem; border-radius: 20px;
+      font-size: 0.78rem; pointer-events: none;
+      opacity: 0; transition: opacity 0.2s; white-space: nowrap; z-index: 50;
+    }
+    #toast.show { opacity: 1; }
+  </style>
 </head>
 <body>
 
-<nav id="site-nav"></nav>
-
-<!-- Hero -->
-<div class="hero">
-  <div class="hero-left">
-    <p class="section-label">Hi, I'm</p>
-    <h1>
-      <span class="blue">Jose</span> Llamas.
-    </h1>
-    <p>
-      EECS student at UC Berkeley. I work across graphics, embedded systems,
-      and software — from C++ graphics frameworks to custom motors and
-      interactive instruments. Currently working on <a href="/projects.html" style="color:#111;font-weight:600;border-bottom:1px solid #111;">Processing for C++</a>.
-    </p>
-    <div class="hero-actions">
-      <a class="btn-yellow" href="/projects.html">Projects</a>
-      <a class="btn-blue"   href="/cv.html">CV</a>
-      <a class="hero-link"  href="mailto:j.llamas@berkeley.edu">Get in touch</a>
-    </div>
-  </div>
-
-  <div class="hero-right">
-    <canvas id="sketch"></canvas>
-  </div>
-
-  <div class="scroll-hint">↓</div>
+<!-- Login -->
+<div id="login-screen">
+  <h1>PC Control</h1>
+  <input id="u-input" type="text" placeholder="Username" autocomplete="username">
+  <input id="p-input" type="password" placeholder="Password" autocomplete="current-password">
+  <button id="login-btn">Sign in</button>
+  <p id="login-error"></p>
 </div>
 
-<!-- About -->
-<div class="section">
-  <p class="section-label">About</p>
-  <h2>A bit about me</h2>
-  <p style="font-size:0.95rem;color:#555;line-height:1.8;max-width:600px;margin-bottom:1.5rem;">
-    From San Diego, CA. Sophomore studying EECS at UC Berkeley (B.S. expected Fall 2029).
-    I work across the stack — C++ graphics frameworks, embedded motor control, PCB design,
-    and multiplayer game systems. Outside of engineering I play violin and have been tutoring
-    calculus for three years.
-  </p>
-  <div class="cards-grid" style="margin-top:1.5rem;">
-    <div class="card" style="cursor:default;">
-      <h3>Languages</h3>
-      <p>C, C++, Python, Java, Lua, Bash, SQL</p>
-    </div>
-    <div class="card" style="cursor:default;">
-      <h3>Hardware &amp; embedded</h3>
-      <p>PCB design, motor control, KiCad, LTspice, oscilloscope, I2C/SPI/UART</p>
-    </div>
-    <div class="card" style="cursor:default;">
-      <h3>Systems &amp; graphics</h3>
-      <p>OpenGL, Processing, Linux (Arch/Debian/RHEL), Git, Fusion 360</p>
-    </div>
-  </div>
-</div>
-
-<!-- Featured projects -->
-<div class="section">
-  <p class="section-label">Work</p>
-  <h2>Featured projects</h2>
-  <div class="cards-grid">
-    <a class="card" href="https://processing-cpp.github.io" target="_blank" rel="noopener">
-      <h3>Processing for C++</h3>
-      <p>A C++ mode for the Processing IDE that compiles sketches to native C++ with a full online editor and compiler backend.</p>
-      <div>
-        <span class="tag">C++</span>
-        <span class="tag">WebAssembly</span>
-        <span class="tag">Processing</span>
+<!-- Main -->
+<div id="main-screen">
+  <div class="top-bar">
+    <div class="title-row">
+      <h1>PC Control</h1>
+      <div class="title-actions">
+        <div class="status-row">
+          <div class="dot" id="status-dot"></div>
+          <span id="status-text">Checking…</span>
+        </div>
+        <button id="cam-toggle" title="Webcam">📷</button>
       </div>
-      <span class="card-link" style="margin-top:0.75rem;display:inline-block;">View project →</span>
-    </a>
-    <a class="card" href="/projects.html">
-      <h3>See all projects</h3>
-      <p>Electronics, graphics experiments, open-source tools, and more.</p>
-      <span class="card-link" style="margin-top:0.75rem;display:inline-block;">Go to projects →</span>
-    </a>
+    </div>
+    <div class="power-row">
+      <button id="power-btn" title="Hold 5s to force off">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="26" height="26">
+          <path d="M12 2v6M6.3 5.3a9 9 0 1 0 11.4 0"/>
+        </svg>
+      </button>
+      <span class="power-hint">Tap = press · Hold 5 s = force off</span>
+    </div>
+  </div>
+
+  <div id="trackpad-zone">
+    <div class="pad-hint">slide to move · tap to click · type anywhere</div>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="click-btns">
+      <button class="click-btn" id="lclick-btn">Left click</button>
+      <button class="click-btn" id="rclick-btn">Right click</button>
+    </div>
+    <div class="type-row">
+      <input id="type-input" type="text" placeholder="Tap here to type on PC…">
+      <button id="type-btn">Send</button>
+    </div>
   </div>
 </div>
 
-<footer>
-  <p>pep Llamas — <a href="mailto:j.llamas@berkeley.edu">j.llamas@berkeley.edu</a></p>
-</footer>
+<!-- Webcam panel -->
+<div id="cam-panel">
+  <video id="cam-video" autoplay playsinline muted></video>
+  <div class="cam-bar">
+    <button id="cam-fullscreen">⛶ Fullscreen</button>
+    <button id="cam-flip">🔄 Flip</button>
+    <button id="cam-close">✕ Close</button>
+  </div>
+</div>
 
-<script src="nav.js"></script>
+<div id="toast"></div>
 
-<!-- p5 sketch: generative geometric pattern -->
 <script>
-new p5(function(p) {
-  let t = 0;
-  p.setup = function() {
-    const c = p.createCanvas(320, 380);
-    c.parent('sketch');
-    p.colorMode(p.HSB, 360, 100, 100, 100);
-    p.strokeWeight(1.5);
-    p.noFill();
-  };
-  p.draw = function() {
-    p.background(0, 0, 100, 18);
-    p.translate(p.width / 2, p.height / 2);
-    for (let i = 0; i < 6; i++) {
-      let angle = (p.TWO_PI / 6) * i + t;
-      let x = p.cos(angle) * 80;
-      let y = p.sin(angle) * 80;
-      let hue = (i * 60 + t * 30) % 360;
-      p.stroke(hue, 60, 80, 80);
-      p.push();
-      p.translate(x, y);
-      p.rotate(angle + t);
-      p.rect(-20, -20, 40, 40, 6);
-      p.pop();
-    }
-    // center shape
-    p.stroke(45, 90, 90, 90); // yellow
-    p.push();
-    p.rotate(t * 0.7);
-    p.rect(-28, -28, 56, 56, 10);
-    p.pop();
-    t += 0.012;
-  };
+const BASE = 'https://pc.pepc84.com';
+
+function api(endpoint, cmd) {
+  fetch(BASE + endpoint, {
+    method: 'POST', credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ cmd })
+  }).catch(() => {});
+}
+
+let toastTimer;
+function toast(msg, dur = 1400) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), dur);
+}
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+async function checkAuth() {
+  try {
+    const r = await fetch(BASE + '/me', { credentials: 'include' });
+    if (r.ok) showMain();
+  } catch {}
+}
+
+async function login() {
+  const u = document.getElementById('u-input').value;
+  const p = document.getElementById('p-input').value;
+  const err = document.getElementById('login-error');
+  err.textContent = '';
+  try {
+    const r = await fetch(BASE + '/login', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: u, password: p })
+    });
+    if (r.ok) showMain();
+    else err.textContent = 'Wrong username or password.';
+  } catch { err.textContent = 'Cannot reach ESP32.'; }
+}
+
+function showMain() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-screen').style.display  = 'flex';
+  pollStatus();
+  setInterval(pollStatus, 10000);
+  // Auto-focus type input so typing works immediately
+  setTimeout(() => document.getElementById('type-input').focus(), 300);
+}
+
+document.getElementById('login-btn').addEventListener('click', login);
+document.getElementById('p-input').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+
+// ── Status ───────────────────────────────────────────────────────────────────
+async function pollStatus() {
+  const dot = document.getElementById('status-dot');
+  const txt = document.getElementById('status-text');
+  try {
+    const r = await fetch(BASE + '/status', { credentials: 'include', signal: AbortSignal.timeout(4000) });
+    if (r.ok) { dot.className = 'dot online'; txt.textContent = 'ESP32 online'; }
+    else throw 0;
+  } catch { dot.className = 'dot offline'; txt.textContent = 'ESP32 offline'; }
+}
+
+// ── Power ─────────────────────────────────────────────────────────────────────
+let powerTimer = null, powerHeld = false;
+const powerBtn = document.getElementById('power-btn');
+powerBtn.addEventListener('pointerdown', e => {
+  e.stopPropagation(); e.preventDefault();
+  powerBtn.setPointerCapture(e.pointerId);
+  powerHeld = false;
+  powerBtn.classList.add('holding');
+  powerTimer = setTimeout(() => {
+    powerHeld = true;
+    api('/power', 'hold');
+    powerBtn.classList.remove('holding');
+  }, 5000);
 });
+powerBtn.addEventListener('pointerup', e => {
+  e.stopPropagation();
+  powerBtn.classList.remove('holding');
+  if (powerTimer) { clearTimeout(powerTimer); powerTimer = null; }
+  if (!powerHeld) api('/power', 'press');
+  powerHeld = false;
+});
+powerBtn.addEventListener('pointercancel', () => {
+  clearTimeout(powerTimer); powerTimer = null;
+  powerHeld = false; powerBtn.classList.remove('holding');
+});
+
+// ── Click buttons ─────────────────────────────────────────────────────────────
+document.getElementById('lclick-btn').addEventListener('pointerdown', e => e.stopPropagation());
+document.getElementById('rclick-btn').addEventListener('pointerdown', e => e.stopPropagation());
+document.getElementById('lclick-btn').addEventListener('click', () => api('/mouse', 'mc:1'));
+document.getElementById('rclick-btn').addEventListener('click', () => api('/mouse', 'mc:2'));
+
+// ── Type ──────────────────────────────────────────────────────────────────────
+const typeInput = document.getElementById('type-input');
+const typeBtn   = document.getElementById('type-btn');
+
+typeInput.addEventListener('pointerdown', e => e.stopPropagation());
+typeBtn.addEventListener('pointerdown',   e => e.stopPropagation());
+
+// Intercept special keys from the type input and forward them as key commands
+typeInput.addEventListener('keydown', e => {
+  const specials = {
+    'F1':'f1','F2':'f2','F3':'f3','F4':'f4','F5':'f5','F6':'f6',
+    'F7':'f7','F8':'f8','F9':'f9','F10':'f10','F11':'f11','F12':'f12',
+    'Tab':'tab','Escape':'escape','Delete':'delete','Backspace':'backspace',
+    'ArrowUp':'up','ArrowDown':'down','ArrowLeft':'left','ArrowRight':'right',
+    'Home':'home','End':'end','PageUp':'pageup','PageDown':'pagedown',
+  };
+
+  // Build modifier prefix
+  let prefix = '';
+  if (e.ctrlKey)  prefix += 'ctrl+';
+  if (e.altKey)   prefix += 'alt+';
+  if (e.metaKey)  prefix += 'win+';
+  if (e.shiftKey && specials[e.key]) prefix += 'shift+'; // shift+special only
+
+  if (e.key === 'Enter') {
+    // Enter without ctrl/alt = send typed text; with modifier = forward Enter
+    if (!e.ctrlKey && !e.altKey && !e.metaKey) {
+      e.preventDefault();
+      sendType();
+      return;
+    }
+  }
+
+  if (specials[e.key]) {
+    e.preventDefault();
+    api('/key', prefix + specials[e.key]);
+    return;
+  }
+
+  // Ctrl/Alt/Meta + letter → forward as key combo, don't type locally
+  if ((e.ctrlKey || e.altKey || e.metaKey) && e.key.length === 1) {
+    e.preventDefault();
+    api('/key', prefix + e.key.toLowerCase());
+  }
+  // All other keys (printable chars, space, backspace) pass through to the input normally
+  // They accumulate in the input and get sent on Enter or Send button
+});
+
+async function sendType() {
+  const val = typeInput.value;
+  if (!val) return;
+
+  typeBtn.textContent = '…';
+  typeBtn.disabled = true;
+
+  try {
+    const r = await fetch(BASE + '/mouse', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cmd: 'type:' + val })
+    });
+    if (r.ok) {
+      typeInput.value = '';
+      typeBtn.classList.add('ok');
+      typeBtn.textContent = 'Sent';
+    } else {
+      typeBtn.classList.add('err');
+      typeBtn.textContent = 'Err';
+      toast('ESP32 error');
+    }
+  } catch {
+    typeBtn.classList.add('err');
+    typeBtn.textContent = 'Err';
+    toast('Cannot reach ESP32');
+  }
+
+  setTimeout(() => {
+    typeBtn.classList.remove('ok', 'err');
+    typeBtn.textContent = 'Send';
+    typeBtn.disabled = false;
+    typeInput.focus(); // keep focus so they can keep typing
+  }, 1000);
+}
+
+typeBtn.addEventListener('click', sendType);
+
+// ── Trackpad ──────────────────────────────────────────────────────────────────
+const zone = document.getElementById('trackpad-zone');
+let pt = null, accX = 0, accY = 0, lastSend = 0;
+const SENS     = 3.5;
+const THROTTLE = 35;
+const TAP_DIST = 8;
+
+function spawnRipple(x, y) {
+  const r = document.createElement('div');
+  r.className = 'ripple';
+  r.style.left = x + 'px'; r.style.top = y + 'px';
+  zone.appendChild(r);
+  r.addEventListener('animationend', () => r.remove());
+}
+
+zone.addEventListener('pointerdown', e => {
+  zone.setPointerCapture(e.pointerId);
+  pt = { x: e.clientX, y: e.clientY, startX: e.clientX, startY: e.clientY, moved: false };
+  accX = accY = 0;
+  e.preventDefault();
+});
+
+zone.addEventListener('pointermove', e => {
+  if (!pt) return;
+  const dx = (e.clientX - pt.x) * SENS;
+  const dy = (e.clientY - pt.y) * SENS;
+  accX += dx; accY += dy;
+  pt.x = e.clientX; pt.y = e.clientY;
+  if (Math.hypot(e.clientX - pt.startX, e.clientY - pt.startY) > TAP_DIST) pt.moved = true;
+
+  const now = performance.now();
+  if (now - lastSend >= THROTTLE) {
+    const ix = Math.max(-127, Math.min(127, Math.round(accX)));
+    const iy = Math.max(-127, Math.min(127, Math.round(accY)));
+    if (ix !== 0 || iy !== 0) {
+      api('/mouse', `m:${ix},${iy}`);
+      accX -= ix; accY -= iy;
+      lastSend = now;
+    }
+  }
+});
+
+zone.addEventListener('pointerup', e => {
+  if (!pt) return;
+  if (!pt.moved) {
+    const rect = zone.getBoundingClientRect();
+    spawnRipple(e.clientX - rect.left, e.clientY - rect.top);
+    api('/mouse', 'mc:1');
+  }
+  pt = null; accX = accY = 0;
+});
+
+zone.addEventListener('pointercancel', () => { pt = null; accX = accY = 0; });
+
+// ── Webcam ────────────────────────────────────────────────────────────────────
+const camPanel     = document.getElementById('cam-panel');
+const camVideo     = document.getElementById('cam-video');
+const camToggle    = document.getElementById('cam-toggle');
+const camClose     = document.getElementById('cam-close');
+const camFullscreen = document.getElementById('cam-fullscreen');
+const camFlip      = document.getElementById('cam-flip');
+
+let camStream = null;
+let useFront  = true;
+
+async function openCam() {
+  try {
+    if (camStream) camStream.getTracks().forEach(t => t.stop());
+    camStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: useFront ? 'user' : 'environment' }, audio: false
+    });
+    camVideo.srcObject = camStream;
+    camPanel.classList.add('open');
+    camToggle.classList.add('active');
+  } catch { toast('Camera not available'); }
+}
+
+function closeCam() {
+  if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+  camVideo.srcObject = null;
+  camPanel.classList.remove('open');
+  camToggle.classList.remove('active');
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+}
+
+camToggle.addEventListener('click', () => {
+  if (camPanel.classList.contains('open')) closeCam();
+  else openCam();
+});
+camClose.addEventListener('click', closeCam);
+
+camFlip.addEventListener('click', () => { useFront = !useFront; openCam(); });
+
+camFullscreen.addEventListener('click', () => {
+  if (!document.fullscreenElement) {
+    camPanel.requestFullscreen().catch(() => {
+      // iOS fallback
+      camVideo.webkitEnterFullscreen && camVideo.webkitEnterFullscreen();
+    });
+  } else {
+    document.exitFullscreen();
+  }
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+checkAuth();
 </script>
 </body>
 </html>
