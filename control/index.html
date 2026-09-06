@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>PC Control — pepc84</title>
+  <title>PC Control · pepc84</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap">
   <style>
@@ -114,6 +114,22 @@
     }
     .click-btn:active { background: #e8b400; }
 
+    .servo-row {
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .servo-row label { font-size: 0.82rem; font-weight: 500; white-space: nowrap; }
+    #servo-slider {
+      flex: 1; accent-color: #e8b400;
+      touch-action: auto;
+    }
+    #servo-val { font-size: 0.82rem; color: #555; width: 2.2rem; text-align: right; }
+    #servo-btn {
+      background: #e8b400; color: #111; border: none; border-radius: 8px;
+      padding: 0.5rem 0.75rem; font-family: inherit; font-weight: 600;
+      font-size: 0.82rem; cursor: pointer; white-space: nowrap;
+    }
+    #servo-btn:active { background: #d4a400; }
+
     .type-row { display: flex; gap: 0.5rem; align-items: stretch; }
     #type-input {
       flex: 1; padding: 0.5rem 0.75rem; border: 1px solid #ddd; border-radius: 8px;
@@ -211,6 +227,12 @@
     <div class="click-btns">
       <button class="click-btn" id="lclick-btn">Left click</button>
       <button class="click-btn" id="rclick-btn">Right click</button>
+    </div>
+    <div class="servo-row">
+      <label>Servo</label>
+      <input id="servo-slider" type="range" min="0" max="180" value="90">
+      <span id="servo-val">90°</span>
+      <button id="servo-btn">Set</button>
     </div>
     <div class="type-row">
       <input id="type-input" type="text" placeholder="Tap here to type on PC…">
@@ -329,15 +351,16 @@ powerBtn.addEventListener('pointerdown', e => {
     toast('Force off sent');
   }, HOLD_MS);
 });
-powerBtn.addEventListener('pointerup', e => {
-  e.stopPropagation();
+function powerRelease() {
   powerRingReset();
-  if (powerTimer) { clearTimeout(powerTimer); powerTimer = null; }
-  if (!powerHeld) api('/power', 'press');
+  if (powerTimer) {
+    clearTimeout(powerTimer); powerTimer = null;
+    if (!powerHeld) { api('/power', 'press'); toast('Power pressed'); }
+  }
   powerHeld = false;
-});
-// pointercancel fires on mobile long-press — keep the timer alive, don't cancel
-powerBtn.addEventListener('pointercancel', () => { /* intentionally empty */ });
+}
+powerBtn.addEventListener('pointerup',     e => { e.stopPropagation(); powerRelease(); });
+powerBtn.addEventListener('pointercancel', e => { e.stopPropagation(); powerRelease(); });
 powerBtn.addEventListener('contextmenu', e => e.preventDefault());
 
 // ── Click buttons ─────────────────────────────────────────────────────────────
@@ -433,6 +456,25 @@ async function sendType() {
 
 typeBtn.addEventListener('click', sendType);
 
+// ── Servo ─────────────────────────────────────────────────────────────────────
+const servoSlider = document.getElementById('servo-slider');
+const servoVal    = document.getElementById('servo-val');
+const servoBtn    = document.getElementById('servo-btn');
+
+servoSlider.addEventListener('input', () => {
+  servoVal.textContent = servoSlider.value + '°';
+});
+servoSlider.addEventListener('pointerdown', e => e.stopPropagation());
+
+servoBtn.addEventListener('pointerdown', e => e.stopPropagation());
+servoBtn.addEventListener('click', () => {
+  fetch(BASE + '/servo', {
+    method: 'POST', credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ angle: parseInt(servoSlider.value) })
+  }).catch(() => {});
+});
+
 // ── Trackpad ──────────────────────────────────────────────────────────────────
 const zone = document.getElementById('trackpad-zone');
 let pt = null, accX = 0, accY = 0, lastSend = 0;
@@ -495,7 +537,7 @@ const camToggle     = document.getElementById('cam-toggle');
 const camClose      = document.getElementById('cam-close');
 const camFullscreen = document.getElementById('cam-fullscreen');
 
-const STREAM_URL = 'https://pc.pepc84.com/stream';
+const STREAM_URL = 'https://pc.pepc84.com/stream?token=f5b73f383966e2c5277da113b90086c5f5d6da4368e0434e768e19321c9c001a';
 
 function openCam() {
   camPanel.classList.add('open');
