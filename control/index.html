@@ -152,7 +152,12 @@
       background: #000; flex-direction: column;
     }
     #cam-panel.open { display: flex; }
-    #cam-img { flex: 1; width: 100%; object-fit: cover; }
+    #cam-img {
+      flex: 1; width: 100%; object-fit: contain;
+      transform-origin: center center;
+      transition: transform 0.05s ease-out;
+      cursor: zoom-in;
+    }
     #cam-loading {
       position: absolute; inset: 0; display: flex; align-items: center;
       justify-content: center; color: #fff; font-size: 0.9rem; opacity: 0.6;
@@ -246,6 +251,9 @@
   <img id="cam-img" alt="camera stream">
   <div id="cam-loading">Connecting to camera…</div>
   <div class="cam-bar">
+    <button id="cam-zoom-out">−</button>
+    <button id="cam-zoom-reset">1×</button>
+    <button id="cam-zoom-in">+</button>
     <button id="cam-fullscreen">⛶ Fullscreen</button>
     <button id="cam-close">✕ Close</button>
   </div>
@@ -555,6 +563,7 @@ function closeCam() {
   camPanel.classList.remove('open');
   camToggle.classList.remove('active');
   camLoading.textContent = 'Connecting to camera…';
+  resetZoom();
   if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
 }
 
@@ -563,6 +572,84 @@ camToggle.addEventListener('click', () => {
   else openCam();
 });
 camClose.addEventListener('click', closeCam);
+
+// ── Zoom ──────────────────────────────────────────────────────────────────────
+let camScale = 1, camOffX = 0, camOffY = 0;
+const MIN_SCALE = 1, MAX_SCALE = 8;
+
+function applyZoom() {
+  // Clamp pan so image edges don't pull away from viewport
+  const maxPan = (camScale - 1) * 50; // percent of panel
+  camOffX = Math.max(-maxPan, Math.min(maxPan, camOffX));
+  camOffY = Math.max(-maxPan, Math.min(maxPan, camOffY));
+  camImg.style.transform = `scale(${camScale}) translate(${camOffX / camScale}%, ${camOffY / camScale}%)`;
+  camImg.style.cursor = camScale > 1 ? 'grab' : 'zoom-in';
+  document.getElementById('cam-zoom-reset').textContent =
+    camScale === 1 ? '1×' : camScale.toFixed(1) + '×';
+}
+
+function resetZoom() { camScale = 1; camOffX = 0; camOffY = 0; applyZoom(); }
+
+document.getElementById('cam-zoom-in').addEventListener('click', () => {
+  camScale = Math.min(MAX_SCALE, parseFloat((camScale * 1.5).toFixed(2)));
+  applyZoom();
+});
+document.getElementById('cam-zoom-out').addEventListener('click', () => {
+  camScale = Math.max(MIN_SCALE, parseFloat((camScale / 1.5).toFixed(2)));
+  if (camScale < 1.05) { camScale = 1; camOffX = 0; camOffY = 0; }
+  applyZoom();
+});
+document.getElementById('cam-zoom-reset').addEventListener('click', resetZoom);
+
+// Pinch-to-zoom
+let pinchDist0 = null, pinchScale0 = 1;
+let panPt = null, panOffX0 = 0, panOffY0 = 0;
+
+camImg.addEventListener('touchstart', e => {
+  if (e.touches.length === 2) {
+    e.preventDefault();
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    pinchDist0 = Math.hypot(dx, dy);
+    pinchScale0 = camScale;
+    panPt = null;
+  } else if (e.touches.length === 1 && camScale > 1) {
+    e.preventDefault();
+    panPt = { x: e.touches[0].clientX, y: e.touches[0].clientY, offX: camOffX, offY: camOffY };
+    pinchDist0 = null;
+  }
+}, { passive: false });
+
+camImg.addEventListener('touchmove', e => {
+  if (e.touches.length === 2 && pinchDist0 !== null) {
+    e.preventDefault();
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.hypot(dx, dy);
+    camScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, pinchScale0 * dist / pinchDist0));
+    applyZoom();
+  } else if (e.touches.length === 1 && panPt) {
+    e.preventDefault();
+    const dx = (e.touches[0].clientX - panPt.x) / camScale * 50;
+    const dy = (e.touches[0].clientY - panPt.y) / camScale * 50;
+    camOffX = panPt.offX + dx;
+    camOffY = panPt.offY + dy;
+    applyZoom();
+  }
+}, { passive: false });
+
+camImg.addEventListener('touchend', () => {
+  if (camScale < 1.05) { camScale = 1; camOffX = 0; camOffY = 0; applyZoom(); }
+  pinchDist0 = null; panPt = null;
+});
+
+// Double-tap to reset zoom
+let lastTap = 0;
+camImg.addEventListener('click', e => {
+  const now = Date.now();
+  if (now - lastTap < 300) { e.preventDefault(); resetZoom(); }
+  lastTap = now;
+});
 
 camFullscreen.addEventListener('click', () => {
   if (!document.fullscreenElement) {
