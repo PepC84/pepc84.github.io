@@ -60,15 +60,27 @@
     #cam-toggle.active { border-color: #e8b400; background: #fffbe6; }
 
     .power-row { display: flex; align-items: center; gap: 1rem; }
+    .power-wrap { position: relative; width: 52px; height: 52px; flex-shrink: 0; }
     #power-btn {
       width: 52px; height: 52px; border-radius: 50%;
       border: 2.5px solid #111; background: #fff;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; transition: background 0.12s, transform 0.08s;
+      transition: background 0.12s, transform 0.08s;
+      -webkit-touch-callout: none;
     }
     #power-btn:active { transform: scale(0.91); background: #f0f0f0; }
-    #power-btn.holding { border-color: #c00; }
     #power-btn svg { pointer-events: none; }
+    /* SVG progress ring overlay */
+    #power-ring {
+      position: absolute; inset: 0; pointer-events: none;
+      transform: rotate(-90deg);
+    }
+    #power-ring circle {
+      fill: none; stroke: #c00; stroke-width: 3;
+      stroke-dasharray: 0 152; /* circumference ≈ 152 */
+      transition: stroke-dasharray 0.1s linear;
+      stroke-linecap: round;
+    }
     .power-hint { font-size: 0.7rem; color: #999; }
 
     /* ── Trackpad ── */
@@ -124,7 +136,12 @@
       background: #000; flex-direction: column;
     }
     #cam-panel.open { display: flex; }
-    #cam-video { flex: 1; width: 100%; object-fit: cover; }
+    #cam-img { flex: 1; width: 100%; object-fit: cover; }
+    #cam-loading {
+      position: absolute; inset: 0; display: flex; align-items: center;
+      justify-content: center; color: #fff; font-size: 0.9rem; opacity: 0.6;
+      pointer-events: none;
+    }
     .cam-bar {
       display: flex; gap: 0.5rem; padding: 0.6rem 1rem;
       background: rgba(0,0,0,0.7);
@@ -172,11 +189,16 @@
       </div>
     </div>
     <div class="power-row">
-      <button id="power-btn" title="Hold 5s to force off">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="26" height="26">
-          <path d="M12 2v6M6.3 5.3a9 9 0 1 0 11.4 0"/>
+      <div class="power-wrap">
+        <button id="power-btn" title="Hold 5s to force off">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="26" height="26">
+            <path d="M12 2v6M6.3 5.3a9 9 0 1 0 11.4 0"/>
+          </svg>
+        </button>
+        <svg id="power-ring" viewBox="0 0 52 52" width="52" height="52">
+          <circle cx="26" cy="26" r="24"/>
         </svg>
-      </button>
+      </div>
       <span class="power-hint">Tap = press · Hold 5 s = force off</span>
     </div>
   </div>
@@ -199,10 +221,10 @@
 
 <!-- Webcam panel -->
 <div id="cam-panel">
-  <video id="cam-video" autoplay playsinline muted></video>
+  <img id="cam-img" alt="camera stream">
+  <div id="cam-loading">Connecting to camera…</div>
   <div class="cam-bar">
     <button id="cam-fullscreen">⛶ Fullscreen</button>
-    <button id="cam-flip">🔄 Flip</button>
     <button id="cam-close">✕ Close</button>
   </div>
 </div>
@@ -277,30 +299,46 @@ async function pollStatus() {
 }
 
 // ── Power ─────────────────────────────────────────────────────────────────────
-let powerTimer = null, powerHeld = false;
-const powerBtn = document.getElementById('power-btn');
+const HOLD_MS  = 5000;
+const CIRCUM   = 2 * Math.PI * 24; // ≈ 150.8
+let powerTimer = null, powerRafId = null, powerStart = 0, powerHeld = false;
+const powerBtn  = document.getElementById('power-btn');
+const powerCirc = document.querySelector('#power-ring circle');
+powerCirc.style.strokeDasharray = `0 ${CIRCUM}`;
+
+function powerRingTick() {
+  const frac = Math.min((performance.now() - powerStart) / HOLD_MS, 1);
+  powerCirc.style.strokeDasharray = `${frac * CIRCUM} ${CIRCUM}`;
+  if (frac < 1) powerRafId = requestAnimationFrame(powerRingTick);
+}
+function powerRingReset() {
+  cancelAnimationFrame(powerRafId); powerRafId = null;
+  powerCirc.style.strokeDasharray = `0 ${CIRCUM}`;
+}
+
 powerBtn.addEventListener('pointerdown', e => {
   e.stopPropagation(); e.preventDefault();
   powerBtn.setPointerCapture(e.pointerId);
   powerHeld = false;
-  powerBtn.classList.add('holding');
+  powerStart = performance.now();
+  powerRafId = requestAnimationFrame(powerRingTick);
   powerTimer = setTimeout(() => {
-    powerHeld = true;
+    powerHeld = true; powerTimer = null;
+    powerRingReset();
     api('/power', 'hold');
-    powerBtn.classList.remove('holding');
-  }, 5000);
+    toast('Force off sent');
+  }, HOLD_MS);
 });
 powerBtn.addEventListener('pointerup', e => {
   e.stopPropagation();
-  powerBtn.classList.remove('holding');
+  powerRingReset();
   if (powerTimer) { clearTimeout(powerTimer); powerTimer = null; }
   if (!powerHeld) api('/power', 'press');
   powerHeld = false;
 });
-powerBtn.addEventListener('pointercancel', () => {
-  clearTimeout(powerTimer); powerTimer = null;
-  powerHeld = false; powerBtn.classList.remove('holding');
-});
+// pointercancel fires on mobile long-press — keep the timer alive, don't cancel
+powerBtn.addEventListener('pointercancel', () => { /* intentionally empty */ });
+powerBtn.addEventListener('contextmenu', e => e.preventDefault());
 
 // ── Click buttons ─────────────────────────────────────────────────────────────
 document.getElementById('lclick-btn').addEventListener('pointerdown', e => e.stopPropagation());
@@ -449,34 +487,32 @@ zone.addEventListener('pointerup', e => {
 
 zone.addEventListener('pointercancel', () => { pt = null; accX = accY = 0; });
 
-// ── Webcam ────────────────────────────────────────────────────────────────────
-const camPanel     = document.getElementById('cam-panel');
-const camVideo     = document.getElementById('cam-video');
-const camToggle    = document.getElementById('cam-toggle');
-const camClose     = document.getElementById('cam-close');
+// ── Webcam (MJPEG stream from ESP32S3) ───────────────────────────────────────
+const camPanel      = document.getElementById('cam-panel');
+const camImg        = document.getElementById('cam-img');
+const camLoading    = document.getElementById('cam-loading');
+const camToggle     = document.getElementById('cam-toggle');
+const camClose      = document.getElementById('cam-close');
 const camFullscreen = document.getElementById('cam-fullscreen');
-const camFlip      = document.getElementById('cam-flip');
 
-let camStream = null;
-let useFront  = true;
+const STREAM_URL = 'https://pc.pepc84.com/stream';
 
-async function openCam() {
-  try {
-    if (camStream) camStream.getTracks().forEach(t => t.stop());
-    camStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: useFront ? 'user' : 'environment' }, audio: false
-    });
-    camVideo.srcObject = camStream;
-    camPanel.classList.add('open');
-    camToggle.classList.add('active');
-  } catch { toast('Camera not available'); }
+function openCam() {
+  camPanel.classList.add('open');
+  camToggle.classList.add('active');
+  camLoading.style.display = 'flex';
+  camImg.src = STREAM_URL;
+  camImg.onload = () => { camLoading.style.display = 'none'; };
+  camImg.onerror = () => { camLoading.textContent = 'Camera unavailable'; };
 }
 
 function closeCam() {
-  if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
-  camVideo.srcObject = null;
+  camImg.src = '';          // stop the stream
+  camImg.onload = null;
+  camImg.onerror = null;
   camPanel.classList.remove('open');
   camToggle.classList.remove('active');
+  camLoading.textContent = 'Connecting to camera…';
   if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
 }
 
@@ -486,13 +522,10 @@ camToggle.addEventListener('click', () => {
 });
 camClose.addEventListener('click', closeCam);
 
-camFlip.addEventListener('click', () => { useFront = !useFront; openCam(); });
-
 camFullscreen.addEventListener('click', () => {
   if (!document.fullscreenElement) {
     camPanel.requestFullscreen().catch(() => {
-      // iOS fallback
-      camVideo.webkitEnterFullscreen && camVideo.webkitEnterFullscreen();
+      camImg.webkitEnterFullscreen && camImg.webkitEnterFullscreen();
     });
   } else {
     document.exitFullscreen();
