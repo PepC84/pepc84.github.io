@@ -149,7 +149,7 @@
     /* ── Webcam overlay ── */
     #cam-panel {
       display: none; position: fixed; inset: 0; z-index: 100;
-      background: #000; flex-direction: column;
+      background: #000; flex-direction: column; position: fixed;
     }
     #cam-panel.open { display: flex; }
     #cam-img {
@@ -173,6 +173,24 @@
       padding: 0.5rem; font-family: inherit; font-size: 0.85rem; cursor: pointer;
     }
     .cam-bar button:active { background: rgba(255,255,255,0.3); }
+
+    /* Zoom overlay buttons */
+    #cam-zoom-overlay {
+      position: absolute; top: 0.6rem; right: 0.6rem;
+      display: flex; flex-direction: column; gap: 0.35rem;
+      z-index: 10;
+    }
+    #cam-zoom-overlay button {
+      width: 36px; height: 36px;
+      background: rgba(0,0,0,0.55); color: #fff;
+      border: 1px solid rgba(255,255,255,0.25); border-radius: 8px;
+      font-family: inherit; font-size: 1rem; font-weight: 600;
+      cursor: pointer; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    #cam-zoom-overlay button:active { background: rgba(255,255,255,0.25); }
+    #cam-zoom-reset { font-size: 0.6rem !important; }
 
     /* Toast */
     #toast {
@@ -250,10 +268,12 @@
 <div id="cam-panel">
   <img id="cam-img" alt="camera stream">
   <div id="cam-loading">Connecting to camera…</div>
-  <div class="cam-bar">
-    <button id="cam-zoom-out">−</button>
-    <button id="cam-zoom-reset">1×</button>
+  <div id="cam-zoom-overlay">
     <button id="cam-zoom-in">+</button>
+    <button id="cam-zoom-reset">1×</button>
+    <button id="cam-zoom-out">−</button>
+  </div>
+  <div class="cam-bar">
     <button id="cam-fullscreen">⛶ Fullscreen</button>
     <button id="cam-close">✕ Close</button>
   </div>
