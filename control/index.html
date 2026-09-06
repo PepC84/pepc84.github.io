@@ -269,9 +269,7 @@
   <img id="cam-img" alt="camera stream">
   <div id="cam-loading">Connecting to camera…</div>
   <div id="cam-zoom-overlay">
-    <button id="cam-zoom-in">+</button>
-    <button id="cam-zoom-reset">1×</button>
-    <button id="cam-zoom-out">−</button>
+    <button id="cam-zoom-cycle">1×</button>
   </div>
   <div class="cam-bar">
     <button id="cam-fullscreen">⛶ Fullscreen</button>
@@ -615,11 +613,12 @@ function applyZoom() {
   [camTx, camTy] = clampTranslate(camScale, camTx, camTy);
   camImg.style.transform = `translate(${camTx}px, ${camTy}px) scale(${camScale})`;
   camImg.style.cursor = camScale > 1 ? 'grab' : 'zoom-in';
-  document.getElementById('cam-zoom-reset').textContent =
-    camScale === 1 ? '1×' : camScale.toFixed(1) + '×';
+  const lbl = camScale === 1 ? '1×' : camScale.toFixed(1) + '×';
+  const cycleBtn = document.getElementById('cam-zoom-cycle');
+  if (cycleBtn) cycleBtn.textContent = lbl;
 }
 
-function resetZoom() { camScale = 1; camTx = 0; camTy = 0; applyZoom(); }
+function resetZoom() { camScale = 1; camTx = 0; camTy = 0; zoomStepIdx = 0; applyZoom(); }
 
 // Zoom toward a panel-relative focal point (px, py)
 function zoomAt(newScale, px, py) {
@@ -634,18 +633,22 @@ function zoomAt(newScale, px, py) {
   applyZoom();
 }
 
-// +/- buttons zoom toward/away from panel center
-document.getElementById('cam-zoom-in').addEventListener('click', () => {
-  const r = camPanel.getBoundingClientRect();
-  zoomAt(Math.min(MAX_SCALE, parseFloat((camScale * 1.5).toFixed(2))), r.width / 2, r.height / 2);
+// Cycle button: 1 → 1.5 → 2 → 2.5 → … → 8 → 1
+const ZOOM_STEPS = [];
+for (let s = 1; s <= MAX_SCALE + 0.01; s += 0.5) ZOOM_STEPS.push(parseFloat(s.toFixed(1)));
+let zoomStepIdx = 0;
+
+const camZoomCycle = document.getElementById('cam-zoom-cycle');
+camZoomCycle.addEventListener('click', () => {
+  zoomStepIdx = (zoomStepIdx + 1) % ZOOM_STEPS.length;
+  const newScale = ZOOM_STEPS[zoomStepIdx];
+  if (newScale === 1) { resetZoom(); return; }
+  // Scale from current position — keep pan, just change scale
+  const ratio = newScale / camScale;
+  camTx *= ratio; camTy *= ratio;
+  camScale = newScale;
+  applyZoom();
 });
-document.getElementById('cam-zoom-out').addEventListener('click', () => {
-  let s = Math.max(MIN_SCALE, parseFloat((camScale / 1.5).toFixed(2)));
-  if (s < 1.05) s = 1;
-  const r = camPanel.getBoundingClientRect();
-  zoomAt(s, r.width / 2, r.height / 2);
-});
-document.getElementById('cam-zoom-reset').addEventListener('click', resetZoom);
 
 // Pinch-to-zoom + single-finger pan
 let pinchDist0 = null, pinchScale0 = 1, pinchMidX = 0, pinchMidY = 0;
@@ -694,21 +697,25 @@ camImg.addEventListener('touchend', () => {
   pinchDist0 = null; panPt = null;
 });
 
-// Double-tap to zoom in at tap point, or reset if already zoomed
-let lastTap = 0, lastTapX = 0, lastTapY = 0;
+// Double-tap: each tap zooms in 0.5× at that spot; at max loops back to 1×
+let lastTap = 0;
 camImg.addEventListener('click', e => {
   const now = Date.now();
   if (now - lastTap < 300) {
     e.preventDefault();
-    if (camScale > 1.5) {
-      resetZoom();
-    } else {
-      const r = camPanel.getBoundingClientRect();
-      zoomAt(3, e.clientX - r.left, e.clientY - r.top);
-    }
+    const r = camPanel.getBoundingClientRect();
+    const px = e.clientX - r.left, py = e.clientY - r.top;
+    const nextIdx = camScale >= MAX_SCALE ? 0 : ZOOM_STEPS.indexOf(
+      ZOOM_STEPS.find(s => s > camScale + 0.01) ?? ZOOM_STEPS[1]
+    );
+    zoomStepIdx = nextIdx;
+    const newScale = ZOOM_STEPS[nextIdx];
+    if (newScale === 1) resetZoom();
+    else zoomAt(newScale, px, py);
   }
-  lastTap = now; lastTapX = e.clientX; lastTapY = e.clientY;
+  lastTap = now;
 });
+
 
 camFullscreen.addEventListener('click', () => {
   if (!document.fullscreenElement) {
