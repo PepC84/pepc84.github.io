@@ -155,7 +155,7 @@
     #cam-img {
       flex: 1; width: 100%; object-fit: contain;
       transform-origin: center center;
-      transition: transform 0.05s ease-out;
+      will-change: transform;
       cursor: zoom-in;
     }
     #cam-loading {
@@ -594,48 +594,76 @@ camToggle.addEventListener('click', () => {
 camClose.addEventListener('click', closeCam);
 
 // ── Zoom ──────────────────────────────────────────────────────────────────────
-let camScale = 1, camOffX = 0, camOffY = 0;
+// We use a translate+scale approach where (originX, originY) is the focal point
+// in panel-relative coordinates (pixels from panel top-left).
+// transform: translate(tx, ty) scale(s)  — applied via CSS on the img.
 const MIN_SCALE = 1, MAX_SCALE = 8;
+let camScale = 1, camTx = 0, camTy = 0; // tx/ty in px
+
+function clampTranslate(s, tx, ty) {
+  const r = camPanel.getBoundingClientRect();
+  // At scale s, the image is s× bigger. Max shift so edges stay visible.
+  const maxX = r.width  * (s - 1) / 2;
+  const maxY = r.height * (s - 1) / 2;
+  return [
+    Math.max(-maxX, Math.min(maxX, tx)),
+    Math.max(-maxY, Math.min(maxY, ty))
+  ];
+}
 
 function applyZoom() {
-  // Clamp pan so image edges don't pull away from viewport
-  const maxPan = (camScale - 1) * 50; // percent of panel
-  camOffX = Math.max(-maxPan, Math.min(maxPan, camOffX));
-  camOffY = Math.max(-maxPan, Math.min(maxPan, camOffY));
-  camImg.style.transform = `scale(${camScale}) translate(${camOffX / camScale}%, ${camOffY / camScale}%)`;
+  [camTx, camTy] = clampTranslate(camScale, camTx, camTy);
+  camImg.style.transform = `translate(${camTx}px, ${camTy}px) scale(${camScale})`;
   camImg.style.cursor = camScale > 1 ? 'grab' : 'zoom-in';
   document.getElementById('cam-zoom-reset').textContent =
     camScale === 1 ? '1×' : camScale.toFixed(1) + '×';
 }
 
-function resetZoom() { camScale = 1; camOffX = 0; camOffY = 0; applyZoom(); }
+function resetZoom() { camScale = 1; camTx = 0; camTy = 0; applyZoom(); }
 
-document.getElementById('cam-zoom-in').addEventListener('click', () => {
-  camScale = Math.min(MAX_SCALE, parseFloat((camScale * 1.5).toFixed(2)));
+// Zoom toward a panel-relative focal point (px, py)
+function zoomAt(newScale, px, py) {
+  const r = camPanel.getBoundingClientRect();
+  const cx = r.width / 2, cy = r.height / 2;
+  // Focal offset from panel center
+  const fx = px - cx, fy = py - cy;
+  // Adjust translate so the point under the finger stays fixed
+  camTx = fx - (fx - camTx) * (newScale / camScale);
+  camTy = fy - (fy - camTy) * (newScale / camScale);
+  camScale = newScale;
   applyZoom();
+}
+
+// +/- buttons zoom toward/away from panel center
+document.getElementById('cam-zoom-in').addEventListener('click', () => {
+  const r = camPanel.getBoundingClientRect();
+  zoomAt(Math.min(MAX_SCALE, parseFloat((camScale * 1.5).toFixed(2))), r.width / 2, r.height / 2);
 });
 document.getElementById('cam-zoom-out').addEventListener('click', () => {
-  camScale = Math.max(MIN_SCALE, parseFloat((camScale / 1.5).toFixed(2)));
-  if (camScale < 1.05) { camScale = 1; camOffX = 0; camOffY = 0; }
-  applyZoom();
+  let s = Math.max(MIN_SCALE, parseFloat((camScale / 1.5).toFixed(2)));
+  if (s < 1.05) s = 1;
+  const r = camPanel.getBoundingClientRect();
+  zoomAt(s, r.width / 2, r.height / 2);
 });
 document.getElementById('cam-zoom-reset').addEventListener('click', resetZoom);
 
-// Pinch-to-zoom
-let pinchDist0 = null, pinchScale0 = 1;
-let panPt = null, panOffX0 = 0, panOffY0 = 0;
+// Pinch-to-zoom + single-finger pan
+let pinchDist0 = null, pinchScale0 = 1, pinchMidX = 0, pinchMidY = 0;
+let panPt = null;
 
 camImg.addEventListener('touchstart', e => {
   if (e.touches.length === 2) {
     e.preventDefault();
-    const dx = e.touches[0].clientX - e.touches[1].clientX;
-    const dy = e.touches[0].clientY - e.touches[1].clientY;
-    pinchDist0 = Math.hypot(dx, dy);
+    const t0 = e.touches[0], t1 = e.touches[1];
+    pinchDist0  = Math.hypot(t0.clientX - t1.clientX, t0.clientY - t1.clientY);
     pinchScale0 = camScale;
+    const r = camPanel.getBoundingClientRect();
+    pinchMidX = ((t0.clientX + t1.clientX) / 2) - r.left;
+    pinchMidY = ((t0.clientY + t1.clientY) / 2) - r.top;
     panPt = null;
-  } else if (e.touches.length === 1 && camScale > 1) {
-    e.preventDefault();
-    panPt = { x: e.touches[0].clientX, y: e.touches[0].clientY, offX: camOffX, offY: camOffY };
+  } else if (e.touches.length === 1) {
+    if (camScale > 1) e.preventDefault();
+    panPt = { x: e.touches[0].clientX, y: e.touches[0].clientY, tx: camTx, ty: camTy };
     pinchDist0 = null;
   }
 }, { passive: false });
@@ -643,32 +671,43 @@ camImg.addEventListener('touchstart', e => {
 camImg.addEventListener('touchmove', e => {
   if (e.touches.length === 2 && pinchDist0 !== null) {
     e.preventDefault();
-    const dx = e.touches[0].clientX - e.touches[1].clientX;
-    const dy = e.touches[0].clientY - e.touches[1].clientY;
-    const dist = Math.hypot(dx, dy);
-    camScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, pinchScale0 * dist / pinchDist0));
-    applyZoom();
+    const t0 = e.touches[0], t1 = e.touches[1];
+    const dist = Math.hypot(t0.clientX - t1.clientX, t0.clientY - t1.clientY);
+    const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, pinchScale0 * dist / pinchDist0));
+    // Translate to keep midpoint fixed, then scale
+    const r = camPanel.getBoundingClientRect();
+    const midX = ((t0.clientX + t1.clientX) / 2) - r.left;
+    const midY = ((t0.clientY + t1.clientY) / 2) - r.top;
+    zoomAt(newScale, midX, midY);
   } else if (e.touches.length === 1 && panPt) {
-    e.preventDefault();
-    const dx = (e.touches[0].clientX - panPt.x) / camScale * 50;
-    const dy = (e.touches[0].clientY - panPt.y) / camScale * 50;
-    camOffX = panPt.offX + dx;
-    camOffY = panPt.offY + dy;
-    applyZoom();
+    if (camScale > 1) {
+      e.preventDefault();
+      camTx = panPt.tx + (e.touches[0].clientX - panPt.x);
+      camTy = panPt.ty + (e.touches[0].clientY - panPt.y);
+      applyZoom();
+    }
   }
 }, { passive: false });
 
 camImg.addEventListener('touchend', () => {
-  if (camScale < 1.05) { camScale = 1; camOffX = 0; camOffY = 0; applyZoom(); }
+  if (camScale < 1.05) resetZoom();
   pinchDist0 = null; panPt = null;
 });
 
-// Double-tap to reset zoom
-let lastTap = 0;
+// Double-tap to zoom in at tap point, or reset if already zoomed
+let lastTap = 0, lastTapX = 0, lastTapY = 0;
 camImg.addEventListener('click', e => {
   const now = Date.now();
-  if (now - lastTap < 300) { e.preventDefault(); resetZoom(); }
-  lastTap = now;
+  if (now - lastTap < 300) {
+    e.preventDefault();
+    if (camScale > 1.5) {
+      resetZoom();
+    } else {
+      const r = camPanel.getBoundingClientRect();
+      zoomAt(3, e.clientX - r.left, e.clientY - r.top);
+    }
+  }
+  lastTap = now; lastTapX = e.clientX; lastTapY = e.clientY;
 });
 
 camFullscreen.addEventListener('click', () => {
